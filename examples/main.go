@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/dzlab/elastic-go/elastic"
+	"github.com/dzlab/elastic-go"
 )
 
 func main() {
