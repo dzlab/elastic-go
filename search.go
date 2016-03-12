@@ -6,11 +6,13 @@ import (
 	"io"
 	"io/ioutil"
 	"log"
+	"strings"
 )
 
 type Search struct {
-	url   string
-	query map[string]string
+	url    string
+	params map[string]string
+	query  map[string]string
 }
 
 type Query interface {
@@ -29,6 +31,7 @@ type General struct {
 func (this *General) Name() string {
 	return this.name
 }
+
 func (this *General) KV() map[string]string {
 	return this.kv
 }
@@ -37,16 +40,53 @@ func NewQuery(name string) *General {
 	return &General{name: name, kv: make(map[string]string)}
 }
 
-func (this *Elasticsearch) Search(index, class string) *Search {
+func (this *Elasticsearch) request(index, class string, id int64, request string) string {
 	var url string
 	if index == "" {
-		url = fmt.Sprintf("http://%s/_search", this.Addr)
+		url = fmt.Sprintf("http://%s/_%s", this.Addr, request)
 	} else if class == "" {
-		url = fmt.Sprintf("http://%s/%s/_search", this.Addr, index)
+		url = fmt.Sprintf("http://%s/%s/_%s", this.Addr, index, request)
+	} else if id < 0 {
+		url = fmt.Sprintf("http://%s/%s/%s/_%s", this.Addr, index, class, request)
 	} else {
-		url = fmt.Sprintf("http://%s/%s/%s/_search", this.Addr, index, class)
+		url = fmt.Sprintf("http://%s/%s/%s/%d/_%s", this.Addr, index, class, id, request)
+	}
+	return url
+}
+
+/*
+ * Create an Explain request, that will return explanation for why a document is returned by the query
+ */
+func (this *Elasticsearch) Explain(index, class string, id int64) *Search {
+	var url string = this.request(index, class, id, "explain")
+	return &Search{url: url, query: make(map[string]string)}
+}
+
+/*
+ * Create a Validate request
+ */
+func (this *Elasticsearch) Validate(index, class string, explain bool) *Search {
+	var url string = this.request(index, class, -1, "validate") + "/query"
+	if explain {
+		url += "?explain"
 	}
 	return &Search{url: url, query: make(map[string]string)}
+}
+
+/*
+ * Create a Search request
+ */
+func (this *Elasticsearch) Search(index, class string) *Search {
+	var url string = this.request(index, class, -1, "search")
+	return &Search{url: url, params: make(map[string]string), query: make(map[string]string)}
+}
+
+/*
+ * Add a url parameter/value, e.g. search_type (count, query_and_fetch, dfs_query_then_fetch/dfs_query_and_fetch, scan)
+ */
+func (this *Search) AddParam(name, value string) *Search {
+	this.params[name] = value
+	return this
 }
 
 /*
@@ -70,16 +110,32 @@ func (this *Search) Add(argument, value string) *Search {
  * GET /:index/:type/_search
  */
 func (this *Search) Get() {
+	// construct the url
+	url := this.url
+	if len(this.params) > 0 {
+		url += "?"
+		for name, value := range this.params {
+			url += name
+			if value != "" {
+				url += "=" + value
+			}
+			url += url + "&"
+		}
+		url = url[:len(url)-1]
+	}
+	// construct the body
 	body := ""
 	if len(this.query) > 0 {
 		body = String(this.query)
 	}
-	log.Println("query", body)
 	var data io.Reader = nil
 	if body != "" {
 		data = bytes.NewReader([]byte(body))
 	}
-	reader, err := exec("GET", this.url, data)
+	// submit the request
+	log.Println("GET", url)
+	log.Println("query", body)
+	reader, err := exec("GET", url, data)
 	if err != nil {
 		log.Println(err)
 		return
@@ -94,6 +150,14 @@ func (this *Search) Get() {
  */
 func (this *General) Add(argument, value string) *General {
 	this.kv[argument] = value
+	return this
+}
+
+/*
+ * specify multiple values to match
+ */
+func (this *General) AddMultiple(argument string, values ...string) *General {
+	this.kv[argument] = "[\"" + strings.Join(values, "\",\"") + "\"]"
 	return this
 }
 
@@ -115,7 +179,7 @@ func String(dict map[string]string) string {
 	var value string = "{"
 	for k, v := range dict {
 		value += "\"" + k + "\"" + ":"
-		if v[0] == byte('{') {
+		if v[0] == byte('{') || v[0] == byte('[') {
 			value += v + ","
 		} else {
 			value += "\"" + v + "\"" + ","
@@ -184,4 +248,25 @@ func (this *Bool) add(key string, query Query) {
 		prefix = this.kv[key][:len(this.kv[key])-1] + ", "
 	}
 	this.kv[key] = prefix + "\"" + query.Name() + "\"" + ":" + String(query.KV()) + "}"
+}
+
+/*
+ * Create a new 'terms' filter, it is like 'term' but can match multiple values
+ */
+func NewTerms() *General {
+	return NewQuery("terms")
+}
+
+/*
+ * Create a new 'term' filter
+ */
+func NewTerm() *General {
+	return NewQuery("term")
+}
+
+/*
+ * Create a new `exists` filter.
+ */
+func NewExists() *General {
+	return NewQuery("exists")
 }
