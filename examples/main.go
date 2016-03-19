@@ -10,7 +10,8 @@ func main() {
 	client.Search("", "").AddQuery(e.NewQuery("query").AddQuery(e.NewQuery("match").Add("tweet", "elasticsearch"))).Get()
 	client.Search("index_2014*", "type1,type2").Get()
 	client.Index("gb").Delete()
-	client.Index("gb").Put("{mappings: {tweet: {properties: {tweet:{type: \"string\", analyzer: \"english\"}, date: {type: \"date\"}, name: {type: \"string\"}, user_id: {type: \"long\"}}}}}")
+	//"{mappings: {tweet: {properties: {tweet:{type: \"string\", analyzer: \"english\"}, date: {type: \"date\"}, name: {type: \"string\"}, user_id: {type: \"long\"}}}}}"
+	client.Index("gb").Put()
 	client.Mapping("gb", "tweet").Put("{properties: {tag: {type: \"string\", index: \"not_analyzed\"}}}")
 	client.Mapping("gb", "tweet").Get()
 	client.Analyze("gb").Get("tweet")

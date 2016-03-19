@@ -9,48 +9,11 @@ import (
 	"net/http"
 )
 
+/*
+ * Elasticsearch client
+ */
 type Elasticsearch struct {
 	Addr string
-}
-
-type Index struct {
-	url string
-}
-
-func (this *Elasticsearch) Index(index string) *Index {
-	url := fmt.Sprintf("http://%s/%s", this.Addr, index)
-	return &Index{url: url}
-}
-
-/*
- * Create an index
- * PUT /:index
- */
-func (this *Index) Put(body string) {
-	reader, err := exec("PUT", this.url, bytes.NewReader([]byte(body)))
-	if err != nil {
-		log.Println(err)
-		return
-	}
-	if data, err := ioutil.ReadAll(reader); err == nil {
-		fmt.Println(string(data))
-	}
-
-}
-
-/*
- * delete an index
- * DELETE /:index
- */
-func (this *Index) Delete() {
-	reader, err := exec("DELETE", this.url, nil)
-	if err != nil {
-		log.Println(err)
-		return
-	}
-	if data, err := ioutil.ReadAll(reader); err == nil {
-		fmt.Println(string(data))
-	}
 }
 
 /*
