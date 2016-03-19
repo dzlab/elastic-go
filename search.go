@@ -2,42 +2,47 @@ package elastic
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"io"
 	"io/ioutil"
 	"log"
-	"strings"
 )
 
+type Dict map[string]interface{}
+
+/*
+ * a request representing a search
+ */
 type Search struct {
 	url    string
 	params map[string]string
-	query  map[string]string
+	query  Dict
 }
 
 type Query interface {
 	Name() string
-	KV() map[string]string
+	KV() Dict
 }
 
 /*
  * General purpose query
  */
-type General struct {
+type Object struct {
 	name string
-	kv   map[string]string
+	kv   Dict
 }
 
-func (this *General) Name() string {
+func (this *Object) Name() string {
 	return this.name
 }
 
-func (this *General) KV() map[string]string {
+func (this *Object) KV() Dict {
 	return this.kv
 }
 
-func NewQuery(name string) *General {
-	return &General{name: name, kv: make(map[string]string)}
+func NewQuery(name string) *Object {
+	return &Object{name: name, kv: make(Dict)}
 }
 
 func (this *Elasticsearch) request(index, class string, id int64, request string) string {
@@ -59,7 +64,7 @@ func (this *Elasticsearch) request(index, class string, id int64, request string
  */
 func (this *Elasticsearch) Explain(index, class string, id int64) *Search {
 	var url string = this.request(index, class, id, "explain")
-	return &Search{url: url, query: make(map[string]string)}
+	return &Search{url: url, query: make(Dict)}
 }
 
 /*
@@ -70,7 +75,7 @@ func (this *Elasticsearch) Validate(index, class string, explain bool) *Search {
 	if explain {
 		url += "?explain"
 	}
-	return &Search{url: url, query: make(map[string]string)}
+	return &Search{url: url, query: make(Dict)}
 }
 
 /*
@@ -78,7 +83,7 @@ func (this *Elasticsearch) Validate(index, class string, explain bool) *Search {
  */
 func (this *Elasticsearch) Search(index, class string) *Search {
 	var url string = this.request(index, class, -1, "search")
-	return &Search{url: url, params: make(map[string]string), query: make(map[string]string)}
+	return &Search{url: url, params: make(map[string]string), query: make(Dict)}
 }
 
 /*
@@ -93,14 +98,14 @@ func (this *Search) AddParam(name, value string) *Search {
 * Add a query to this search request
  */
 func (this *Search) AddQuery(query Query) *Search {
-	this.query[query.Name()] = String(query.KV())
+	this.query[query.Name()] = query.KV()
 	return this
 }
 
 /*
  * Add a query argument/value, e.g. size, from, etc.
  */
-func (this *Search) Add(argument, value string) *Search {
+func (this *Search) Add(argument string, value interface{}) *Search {
 	this.query[argument] = value
 	return this
 }
@@ -148,7 +153,7 @@ func (this *Search) Get() {
 /*
  * Add a query argument/value
  */
-func (this *General) Add(argument, value string) *General {
+func (this *Object) Add(argument string, value interface{}) *Object {
 	this.kv[argument] = value
 	return this
 }
@@ -156,38 +161,28 @@ func (this *General) Add(argument, value string) *General {
 /*
  * specify multiple values to match
  */
-func (this *General) AddMultiple(argument string, values ...string) *General {
-	this.kv[argument] = "[\"" + strings.Join(values, "\",\"") + "\"]"
+func (this *Object) AddMultiple(argument string, values ...string) *Object {
+	this.kv[argument] = values
 	return this
 }
 
 /*
  * Add a sub query (e.g. a field query)
  */
-func (this *General) AddQuery(query Query) *General {
-	this.kv[query.Name()] = String(query.KV())
+func (this *Object) AddQuery(query Query) *Object {
+	this.kv[query.Name()] = query.KV()
 	return this
 }
 
 /*
  * Return a string representation of the dictionary
  */
-func String(dict map[string]string) string {
-	if len(dict) == 0 {
-		return "{}"
+func String(dict Dict) string {
+	marshaled, err := json.Marshal(dict)
+	if err != nil {
+		log.Println(err)
 	}
-	var value string = "{"
-	for k, v := range dict {
-		value += "\"" + k + "\"" + ":"
-		if v[0] == byte('{') || v[0] == byte('[') {
-			value += v + ","
-		} else {
-			value += "\"" + v + "\"" + ","
-
-		}
-	}
-	value = value[:len(value)-1] + "}"
-	return value
+	return string(marshaled)
 }
 
 /*
@@ -195,13 +190,13 @@ func String(dict map[string]string) string {
  */
 type Bool struct {
 	name string
-	kv   map[string]string
+	kv   Dict
 }
 
 func (this *Bool) Name() string {
 	return this.name
 }
-func (this *Bool) KV() map[string]string {
+func (this *Bool) KV() Dict {
 	return this.kv
 }
 
@@ -209,7 +204,7 @@ func (this *Bool) KV() map[string]string {
  * Create a new 'bool' clause
  */
 func NewBool() *Bool {
-	kv := make(map[string]string)
+	kv := make(Dict)
 	return &Bool{name: "bool", kv: kv}
 }
 
@@ -241,32 +236,31 @@ func (this *Bool) AddShould(query Query) *Bool {
  * add a clause
  */
 func (this *Bool) add(key string, query Query) {
-	var prefix string
-	if this.kv[key] == "" {
-		prefix = "{"
-	} else {
-		prefix = this.kv[key][:len(this.kv[key])-1] + ", "
+	dict := this.kv[key]
+	if dict == nil {
+		dict = make(Dict)
 	}
-	this.kv[key] = prefix + "\"" + query.Name() + "\"" + ":" + String(query.KV()) + "}"
+	dict.(Dict)[query.Name()] = query.KV()
+	this.kv[key] = dict
 }
 
 /*
  * Create a new 'terms' filter, it is like 'term' but can match multiple values
  */
-func NewTerms() *General {
+func NewTerms() *Object {
 	return NewQuery("terms")
 }
 
 /*
  * Create a new 'term' filter
  */
-func NewTerm() *General {
+func NewTerm() *Object {
 	return NewQuery("term")
 }
 
 /*
  * Create a new `exists` filter.
  */
-func NewExists() *General {
+func NewExists() *Object {
 	return NewQuery("exists")
 }
