@@ -52,14 +52,3 @@ func TestFilters(t *testing.T) {
 	}
 	equals(t, actual, expected)
 }
-
-/*
- * assert if all entries of arrays are equals
- */
-func equals(t *testing.T, actual, expected []string) {
-	for i := 0; i < len(actual); i++ {
-		if actual[i] != expected[i] {
-			t.Error("Should be equal", actual[i], expected[i])
-		}
-	}
-}
