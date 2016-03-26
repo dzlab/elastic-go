@@ -138,7 +138,12 @@ func (this *Analyzer) Add1(key1, key2 string, value interface{}) *Analyzer {
  * add a dictionary of attributes to analyzer definition
  */
 func (this *Analyzer) Add2(name string, value Dict) *Analyzer {
-	this.kv[name] = value
+	if len(this.kv[name]) == 0 {
+		this.kv[name] = make(Dict)
+	}
+	for k, v := range value {
+		this.kv[name][k] = v
+	}
 	return this
 }
 
