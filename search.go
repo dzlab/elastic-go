@@ -10,6 +10,13 @@ import (
 
 type Dict map[string]interface{}
 
+// fields of a Search API call
+const (
+	ALL     = "_all"
+	INCLUDE = "include_in_all"
+	SOURCE  = "_source"
+)
+
 /*
  * a request representing a search
  */
@@ -23,10 +30,6 @@ type Query interface {
 	Name() string
 	KV() Dict
 }
-
-const (
-	SOURCE = "_source"
-)
 
 /*
  * General purpose query
@@ -44,10 +47,16 @@ func (this *Object) KV() Dict {
 	return this.kv
 }
 
+/*
+ * Create a new query object
+ */
 func NewQuery(name string) *Object {
 	return &Object{name: name, kv: make(Dict)}
 }
 
+/*
+ * Get a string representation of this object
+ */
 func (this *Object) String() string {
 	return String(this.KV())
 }

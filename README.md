@@ -34,4 +34,5 @@ This library is still under very active development. Any contribution is welcome
 
 Some planned features:
 
+* A REPL to interact easily with Elasticsearch
 * ...
