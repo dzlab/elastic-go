@@ -2,6 +2,7 @@ package elastic
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -14,6 +15,45 @@ import (
  */
 type Elasticsearch struct {
 	Addr string
+}
+
+/*
+ * Elasticsearch failure representation
+ * e.g.:{"error":{"root_cause":[{"type":"no_shard_available_action_exception","reason":"No shard available for [org.elasticsearch.action.admin.indices.analyze.AnalyzeRequest@74508901]"}],"type":"no_shard_available_action_exception","reason":"No shard available for [org.elasticsearch.action.admin.indices.analyze.AnalyzeRequest@74508901]"},"status":503}
+ */
+type Failure struct {
+	kind   string `type`
+	reason string `reason`
+	status int    `json`
+}
+
+/*
+ * Elasticsearch success representation
+ * e.g.: {"acknowledged":true}
+ */
+type Success struct {
+	acknowledged bool
+}
+
+/*
+ * Elasticsearch unvalid representation
+ * e.g.: {"valid":false,"_shards":{"total":1,"successful":1,"failed":0},"explanations":[{"index":"gb","valid":false,"error":"org.elasticsearch.index.query.QueryParsingException: No query registered for [tweet]"}]}
+ */
+type Unvalid struct {
+	valid       bool
+	shards      Dict
+	explanation []Dict
+}
+
+/*
+ * Return a string representation of the dictionary
+ */
+func String(dict Dict) string {
+	marshaled, err := json.Marshal(dict)
+	if err != nil {
+		log.Println(err)
+	}
+	return string(marshaled)
 }
 
 /*
@@ -53,31 +93,6 @@ func (this *Mapping) Get() {
  */
 func (this *Mapping) Put(body string) {
 	reader, err := exec("PUT", this.url, bytes.NewReader([]byte(body)))
-	if err != nil {
-		log.Println(err)
-		return
-	}
-	if data, err := ioutil.ReadAll(reader); err == nil {
-		fmt.Println(string(data))
-	}
-}
-
-type Analyze struct {
-	url string
-}
-
-func (this *Elasticsearch) Analyze(index string) *Analyze {
-	url := fmt.Sprintf("http://%s/%s/_analyze", this.Addr, index)
-	return &Analyze{url: url}
-}
-
-/*
- * GET /:index/_analyze?field=field_name
- */
-func (this *Analyze) Get(field string) {
-	url := fmt.Sprintf("%s?field=%s", this.url, field)
-	log.Println(url)
-	reader, err := exec("GET", url, nil)
 	if err != nil {
 		log.Println(err)
 		return

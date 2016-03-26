@@ -2,7 +2,6 @@ package elastic
 
 import (
 	"bytes"
-	"encoding/json"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -25,6 +24,10 @@ type Query interface {
 	KV() Dict
 }
 
+const (
+	SOURCE = "_source"
+)
+
 /*
  * General purpose query
  */
@@ -43,6 +46,10 @@ func (this *Object) KV() Dict {
 
 func NewQuery(name string) *Object {
 	return &Object{name: name, kv: make(Dict)}
+}
+
+func (this *Object) String() string {
+	return String(this.KV())
 }
 
 func (this *Elasticsearch) request(index, class string, id int64, request string) string {
@@ -87,6 +94,13 @@ func (this *Elasticsearch) Search(index, class string) *Search {
 }
 
 /*
+ * Create a new Search API call
+ */
+func newSearch() *Search {
+	return &Search{url: "", params: make(map[string]string), query: make(Dict)}
+}
+
+/*
  * Add a url parameter/value, e.g. search_type (count, query_and_fetch, dfs_query_then_fetch/dfs_query_and_fetch, scan)
  */
 func (this *Search) AddParam(name, value string) *Search {
@@ -103,11 +117,37 @@ func (this *Search) AddQuery(query Query) *Search {
 }
 
 /*
+ * Add to _source (i.e. specify another field that should be extracted)
+ */
+func (this *Search) AddSource(source string) *Search {
+	var sources []string
+	if this.query[SOURCE] == nil {
+		sources = []string{}
+	} else {
+		sources = this.query[SOURCE].([]string)
+	}
+	sources = append(sources, source)
+	this.query[SOURCE] = sources
+	return this
+}
+
+/*
  * Add a query argument/value, e.g. size, from, etc.
  */
 func (this *Search) Add(argument string, value interface{}) *Search {
 	this.query[argument] = value
 	return this
+}
+
+/*
+ * Get a string representation of this Search API call
+ */
+func (this *Search) String() string {
+	body := ""
+	if len(this.query) > 0 {
+		body = String(this.query)
+	}
+	return body
 }
 
 /*
@@ -129,10 +169,7 @@ func (this *Search) Get() {
 		url = url[:len(url)-1]
 	}
 	// construct the body
-	body := ""
-	if len(this.query) > 0 {
-		body = String(this.query)
-	}
+	body := this.String()
 	var data io.Reader = nil
 	if body != "" {
 		data = bytes.NewReader([]byte(body))
@@ -172,17 +209,6 @@ func (this *Object) AddMultiple(argument string, values ...string) *Object {
 func (this *Object) AddQuery(query Query) *Object {
 	this.kv[query.Name()] = query.KV()
 	return this
-}
-
-/*
- * Return a string representation of the dictionary
- */
-func String(dict Dict) string {
-	marshaled, err := json.Marshal(dict)
-	if err != nil {
-		log.Println(err)
-	}
-	return string(marshaled)
 }
 
 /*

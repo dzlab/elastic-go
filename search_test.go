@@ -8,9 +8,9 @@ import (
 func TestGeneral(t *testing.T) {
 	// given input
 	input := []string{
-		String(NewQuery("").KV()),
-		String(NewQuery("").Add("argument", "value").KV()),
-		String(NewQuery("").AddQuery(NewQuery("query").AddQuery(NewQuery("match_all"))).KV()),
+		NewQuery("").String(),
+		NewQuery("").Add("argument", "value").String(),
+		NewQuery("").AddQuery(NewQuery("query").AddQuery(NewQuery("match_all"))).String(),
 	}
 	// expected result
 	output := []string{
@@ -25,11 +25,22 @@ func TestGeneral(t *testing.T) {
 	}
 }
 
+// test for search queries
+func TestSearch(t *testing.T) {
+	actual := []string{
+		newSearch().AddQuery(NewQuery("query").AddQuery(NewQuery("match_all"))).AddSource("title").AddSource("created").String(),
+	}
+	expected := []string{
+		`{"_source":["title","created"],"query":{"match_all":{}}}`,
+	}
+	equals(t, actual, expected)
+}
+
 // test for bool clauses
 func TestBool(t *testing.T) {
 	input := []string{
-		String(NewQuery("").AddQuery(NewBool().AddMust(NewQuery("match").Add("tweet", "elasticsearch"))).KV()),
-		String(NewQuery("").AddQuery(NewBool().AddMust(NewQuery("match_all")).AddMustNot(NewQuery("match")).AddShould(NewQuery("match"))).KV()),
+		NewQuery("").AddQuery(NewBool().AddMust(NewQuery("match").Add("tweet", "elasticsearch"))).String(),
+		NewQuery("").AddQuery(NewBool().AddMust(NewQuery("match_all")).AddMustNot(NewQuery("match")).AddShould(NewQuery("match"))).String(),
 	}
 	output := []string{
 		`{"bool":{"must":{"match":{"tweet":"elasticsearch"}}}}`,
