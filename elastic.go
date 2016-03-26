@@ -1,11 +1,8 @@
 package elastic
 
 import (
-	"bytes"
 	"encoding/json"
-	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"net/http"
 )
@@ -20,6 +17,7 @@ type Elasticsearch struct {
 /*
  * Elasticsearch failure representation
  * e.g.:{"error":{"root_cause":[{"type":"no_shard_available_action_exception","reason":"No shard available for [org.elasticsearch.action.admin.indices.analyze.AnalyzeRequest@74508901]"}],"type":"no_shard_available_action_exception","reason":"No shard available for [org.elasticsearch.action.admin.indices.analyze.AnalyzeRequest@74508901]"},"status":503}
+ * e.g.:{"error":{"root_cause":[{"type":"index_already_exists_exception","reason":"already exists","index":"my_index"}],"type":"index_already_exists_exception","reason":"already exists","index":"my_index"},"status":400}
  */
 type Failure struct {
 	kind   string `type`
@@ -54,52 +52,6 @@ func String(dict Dict) string {
 		log.Println(err)
 	}
 	return string(marshaled)
-}
-
-/*
- * mappings between the json fields and how Elasticsearch store them
- */
-type Mapping struct {
-	url string
-}
-
-/*
- * request mappings between the json fields and how Elasticsearch store them
- * GET /:index/_mapping/:type
- */
-func (this *Elasticsearch) Mapping(index, class string) *Mapping {
-	url := fmt.Sprintf("http://%s/%s/_mapping/%s", this.Addr, index, class)
-	return &Mapping{url: url}
-}
-
-/*
- * request mappings between the json fields and how Elasticsearch store them
- * GET /:index/_mapping/:type
- */
-func (this *Mapping) Get() {
-	reader, err := exec("GET", this.url, nil)
-	if err != nil {
-		log.Println(err)
-		return
-	}
-	if data, err := ioutil.ReadAll(reader); err == nil {
-		fmt.Println(string(data))
-	}
-}
-
-/*
- * Update a mappings between the json fields and how Elasticsearch store them
- * PUT /:index/_mapping/:type
- */
-func (this *Mapping) Put(body string) {
-	reader, err := exec("PUT", this.url, bytes.NewReader([]byte(body)))
-	if err != nil {
-		log.Println(err)
-		return
-	}
-	if data, err := ioutil.ReadAll(reader); err == nil {
-		fmt.Println(string(data))
-	}
 }
 
 /*
