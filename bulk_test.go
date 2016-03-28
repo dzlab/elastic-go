@@ -17,3 +17,20 @@ func TestBulk(t *testing.T) {
 	}
 	equals(t, actual, expected)
 }
+
+// test for operation
+func TestOperation(t *testing.T) {
+	actual := []string{
+		NewOperation(1).Add("other_field", "some data").String(),
+		NewOperation(1).AddMultiple("tags", "search", "open_source").String(),
+		NewOperation(1).AddMultiple("tags", "search", nil).String(),
+		NewOperation(1).AddMultiple("tags").String(),
+	}
+	expected := []string{
+		`{"other_field":"some data"}`,
+		`{"tags":["search","open_source"]}`,
+		`{"tags":["search",null]}`,
+		`{"tags":null}`,
+	}
+	equals(t, actual, expected)
+}

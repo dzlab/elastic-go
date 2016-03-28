@@ -47,6 +47,21 @@ func (this *Operation) Add(name string, value interface{}) *Operation {
 }
 
 /*
+ * Add a field with multiple values to this document
+ */
+func (this *Operation) AddMultiple(name string, values ...interface{}) *Operation {
+	this.doc[name] = values
+	return this
+}
+
+/*
+ * Get a string representation of this operation
+ */
+func (this *Operation) String() string {
+	return String(this.doc)
+}
+
+/*
  * Create a new Bulk operations
  */
 func (this *Elasticsearch) Bulk(index, docType string) *Bulk {
