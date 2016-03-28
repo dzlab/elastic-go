@@ -9,11 +9,13 @@ import (
 )
 
 const (
-	SHARDS_NB   = "number_of_shards"
-	REPLICAS_NB = "number_of_replicas"
-	ANALYSIS    = "analysis"
-	SETTINGS    = "settings"
-	ALIAS       = "_alias"
+	ANALYSIS = "analysis"
+	SETTINGS = "settings"
+	ALIAS    = "_alias"
+	// settings params
+	SHARDS_NB        = "number_of_shards"
+	REPLICAS_NB      = "number_of_replicas"
+	REFRESH_INTERVAL = "refresh_interval"
 )
 
 type Index struct {
@@ -64,7 +66,7 @@ func (this *Index) SetAlias(alias string) *Index {
 /*
  * Add a key-value settings
  */
-func (this *Index) AddSetting(name string, value int) *Index {
+func (this *Index) AddSetting(name string, value interface{}) *Index {
 	if this.dict[SETTINGS] == nil {
 		this.dict[SETTINGS] = make(Dict)
 	}
@@ -85,6 +87,14 @@ func (this *Index) SetShardsNb(number int) *Index {
  */
 func (this *Index) SetReplicasNb(number int) *Index {
 	this.AddSetting(REPLICAS_NB, number)
+	return this
+}
+
+/*
+ * Set the refresh interval
+ */
+func (this *Index) SetRefreshInterval(interval string) *Index {
+	this.AddSetting(REFRESH_INTERVAL, interval)
 	return this
 }
 

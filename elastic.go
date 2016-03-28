@@ -55,6 +55,25 @@ func String(dict Dict) string {
 }
 
 /*
+ * Construct a url
+ */
+func urlString(prefix string, params map[string]string) string {
+	url := prefix
+	if len(params) > 0 {
+		url += "?"
+		for name, value := range params {
+			url += name
+			if value != "" {
+				url += "=" + value
+			}
+			url += "&"
+		}
+		url = url[:len(url)-1]
+	}
+	return url
+}
+
+/*
  * Execute a REST request
  */
 func exec(method, url string, body io.Reader) (io.Reader, error) {

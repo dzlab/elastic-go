@@ -174,19 +174,7 @@ func (this *Search) String() string {
  * Construct the url of this Search API call
  */
 func (this *Search) urlString() string {
-	url := this.url
-	if len(this.params) > 0 {
-		url += "?"
-		for name, value := range this.params {
-			url += name
-			if value != "" {
-				url += "=" + value
-			}
-			url += "&"
-		}
-		url = url[:len(url)-1]
-	}
-	return url
+	return urlString(this.url, this.params)
 }
 
 /*
