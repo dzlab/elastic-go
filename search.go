@@ -12,9 +12,17 @@ type Dict map[string]interface{}
 
 // fields of a Search API call
 const (
+	// APIs
+	EXPLAIN  = "explain"
+	VALIDATE = "validate"
+	SEARCH   = "search"
+	// Query elements
 	ALL     = "_all"
 	INCLUDE = "include_in_all"
 	SOURCE  = "_source"
+	// url params
+	SEARCH_TYPE = "search_type"
+	SCROLL      = "scroll"
 )
 
 /*
@@ -61,6 +69,9 @@ func (this *Object) String() string {
 	return String(this.KV())
 }
 
+/*
+ * Build the url of an API request call
+ */
 func (this *Elasticsearch) request(index, class string, id int64, request string) string {
 	var url string
 	if index == "" {
@@ -79,7 +90,7 @@ func (this *Elasticsearch) request(index, class string, id int64, request string
  * Create an Explain request, that will return explanation for why a document is returned by the query
  */
 func (this *Elasticsearch) Explain(index, class string, id int64) *Search {
-	var url string = this.request(index, class, id, "explain")
+	var url string = this.request(index, class, id, EXPLAIN)
 	return &Search{url: url, query: make(Dict)}
 }
 
@@ -87,9 +98,9 @@ func (this *Elasticsearch) Explain(index, class string, id int64) *Search {
  * Create a Validate request
  */
 func (this *Elasticsearch) Validate(index, class string, explain bool) *Search {
-	var url string = this.request(index, class, -1, "validate") + "/query"
+	var url string = this.request(index, class, -1, VALIDATE) + "/query"
 	if explain {
-		url += "?explain"
+		url += "?" + EXPLAIN
 	}
 	return &Search{url: url, query: make(Dict)}
 }
@@ -98,7 +109,7 @@ func (this *Elasticsearch) Validate(index, class string, explain bool) *Search {
  * Create a Search request
  */
 func (this *Elasticsearch) Search(index, class string) *Search {
-	var url string = this.request(index, class, -1, "search")
+	var url string = this.request(index, class, -1, SEARCH)
 	return &Search{url: url, params: make(map[string]string), query: make(Dict)}
 }
 
