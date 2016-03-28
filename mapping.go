@@ -10,7 +10,7 @@ import (
 const (
 	MAPPING            = "mapping"
 	MAPPINGS           = "mappings"
-	CLASS              = "type"
+	TYPE               = "type"
 	INDEX              = "index"
 	PROPERTIES         = "properties"
 	MATCH              = "match"
@@ -30,22 +30,17 @@ type Mapping struct {
 /*
  * Create a new mapping query
  */
-func newMapping(url string) *Mapping {
+func NewMapping(url string) *Mapping {
 	return &Mapping{url: url, query: make(Dict)}
 }
 
 /*
  * request mappings between the json fields and how Elasticsearch store them
- * GET /:index/_mapping/:type
+ * GET /:index/:type/_mapping
  */
-func (this *Elasticsearch) Mapping(index, class string) *Mapping {
-	var url string
-	if class == "" {
-		url = fmt.Sprintf("http://%s/%s", this.Addr, index)
-	} else {
-		url = fmt.Sprintf("http://%s/%s/%s/_mapping", this.Addr, index, class)
-	}
-	return newMapping(url)
+func (this *Elasticsearch) Mapping(index, doctype string) *Mapping {
+	var url string = this.request(index, doctype, -1, MAPPING)
+	return NewMapping(url)
 }
 
 /*
@@ -56,16 +51,16 @@ func (this *Mapping) String() string {
 }
 
 /*
- * Add a mapping for a type's proeprty
+ * Add a mapping for a type's property
  */
-func (this *Mapping) AddProperty(name, class, index string) *Mapping {
+func (this *Mapping) AddProperty(fieldname, fieldtype, indexing string) *Mapping {
 	if this.query[PROPERTIES] == nil {
 		this.query[PROPERTIES] = make(Dict)
 	}
 	property := make(Dict)
-	property[CLASS] = class
-	property[INDEX] = index
-	this.query[PROPERTIES].(Dict)[name] = property
+	property[TYPE] = fieldtype
+	property[INDEX] = indexing
+	this.query[PROPERTIES].(Dict)[fieldname] = property
 	return this
 }
 

@@ -4,6 +4,19 @@ import (
 	"testing"
 )
 
+/*
+ * Tests for queries with mappings
+ */
+func TestIndexMappings(t *testing.T) {
+	acutal := []string{
+		newIndex().Mappings("products", NewMapping("").AddProperty("productID", "string", "not_analyzed")).String(),
+	}
+	expected := []string{
+		`{"mappings":{"products":{"properties":{"productID":{"index":"not_analyzed","type":"string"}}}}}`,
+	}
+	equals(t, acutal, expected)
+}
+
 // test for queries with settings
 func TestSettings(t *testing.T) {
 	// given input

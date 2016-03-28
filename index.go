@@ -21,12 +21,10 @@ const (
 type Index struct {
 	url  string
 	dict Dict
-	//settings *Settings
-	//mappings map[string]string
 }
 
 /*
- * Return a JSOn representation of the body of this Index
+ * Return a JSON representation of the body of this Index
  */
 func (this *Index) String() string {
 	result, err := json.Marshal(this.dict)
@@ -46,6 +44,17 @@ func (this *Elasticsearch) Index(index string) *Index {
  */
 func (this *Index) Settings(settings Dict) {
 	this.dict[SETTINGS] = settings
+}
+
+/*
+ * Set the mapping parameter
+ */
+func (this *Index) Mappings(doctype string, mapping *Mapping) *Index {
+	if this.dict[MAPPINGS] == nil {
+		this.dict[MAPPINGS] = make(Dict)
+	}
+	this.dict[MAPPINGS].(Dict)[doctype] = mapping.query
+	return this
 }
 
 /*
