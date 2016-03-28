@@ -13,6 +13,7 @@ const (
 	REPLICAS_NB = "number_of_replicas"
 	ANALYSIS    = "analysis"
 	SETTINGS    = "settings"
+	ALIAS       = "_alias"
 )
 
 type Index struct {
@@ -50,6 +51,14 @@ func (this *Index) Settings(settings Dict) {
  */
 func newIndex() *Index {
 	return &Index{dict: make(Dict)}
+}
+
+/*
+ * Define an alias for this index
+ */
+func (this *Index) SetAlias(alias string) *Index {
+	this.url += fmt.Sprintf("/%s/%s", ALIAS, alias)
+	return this
 }
 
 /*

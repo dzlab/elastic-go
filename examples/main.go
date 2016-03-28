@@ -13,7 +13,10 @@ func main() {
 	client.Search("old_index", "").AddParam("search_type", "scan").AddParam("scroll", "1m").AddQuery(e.NewQuery("query").AddQuery(e.NewQuery("range").AddQuery(e.NewQuery("data").Add("gte", "2014-01-01").Add("lt", "2014-02-01")))).Add("size", 1000).Get()
 	client.Index("gb").Delete()
 	//"{mappings: {tweet: {properties: {tweet:{type: \"string\", analyzer: \"english\"}, date: {type: \"date\"}, name: {type: \"string\"}, user_id: {type: \"long\"}}}}}"
-	client.Index("gb").Put()
+	client.Index("gb_v1").Put()
+	client.Index("gb_v1").SetAlias("gb").Put()
+	// create Aliases operations
+	client.Alias().AddAction("remove", "my_index_v1", "my_index").AddAction("add", "my_index_v2", "my_index").Post()
 	// create an index example
 	client.Index("my_index").Delete()
 	cf := e.NewAnalyzer("char_filter").Add1("&_to_and", "type", "mapping").Add2("&_to_and", map[string]interface{}{"mappings": []string{"&=> and "}})
