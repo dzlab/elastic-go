@@ -2,6 +2,7 @@ package elastic
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -12,6 +13,23 @@ import (
  */
 type Elasticsearch struct {
 	Addr string
+}
+
+/*
+ * Build the url of an API request call
+ */
+func (this *Elasticsearch) request(index, class string, id int64, request string) string {
+	var url string
+	if index == "" {
+		url = fmt.Sprintf("http://%s/_%s", this.Addr, request)
+	} else if class == "" {
+		url = fmt.Sprintf("http://%s/%s/_%s", this.Addr, index, request)
+	} else if id < 0 {
+		url = fmt.Sprintf("http://%s/%s/%s/_%s", this.Addr, index, class, request)
+	} else {
+		url = fmt.Sprintf("http://%s/%s/%s/%d/_%s", this.Addr, index, class, id, request)
+	}
+	return url
 }
 
 /*
