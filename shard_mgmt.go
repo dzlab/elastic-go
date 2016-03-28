@@ -7,9 +7,9 @@ import (
 )
 
 const (
-	REFRESH  = "_refresh"
-	FLUSH    = "_flush"
-	OPTIMIZE = "_optimize"
+	REFRESH  = "refresh"
+	FLUSH    = "flush"
+	OPTIMIZE = "optimize"
 )
 
 /*

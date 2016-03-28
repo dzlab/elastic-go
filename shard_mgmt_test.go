@@ -12,9 +12,9 @@ func TestShardMgmtOp(t *testing.T) {
 	}
 	// expected result
 	expected := []string{
-		`_refresh`,
-		`_flush?wait_for_ongoing`,
-		`_optimize?max_num_segment=1`,
+		`refresh`,
+		`flush?wait_for_ongoing`,
+		`optimize?max_num_segment=1`,
 	}
 	// check if OK
 	equals(t, actual, expected)
