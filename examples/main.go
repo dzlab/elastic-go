@@ -9,6 +9,8 @@ func main() {
 	client.Search("", "").Add("from", 30).Add("size", 10).Get()
 	client.Search("", "").AddQuery(e.NewQuery("query").AddQuery(e.NewQuery("match").Add("tweet", "elasticsearch"))).Get()
 	client.Search("index_2014*", "type1,type2").Get()
+	// reindex in batch
+	client.Search("old_index", "").AddParam("search_type", "scan").AddParam("scroll", "1m").AddQuery(e.NewQuery("query").AddQuery(e.NewQuery("range").AddQuery(e.NewQuery("data").Add("gte", "2014-01-01").Add("lt", "2014-02-01")))).Add("size", 1000).Get()
 	client.Index("gb").Delete()
 	//"{mappings: {tweet: {properties: {tweet:{type: \"string\", analyzer: \"english\"}, date: {type: \"date\"}, name: {type: \"string\"}, user_id: {type: \"long\"}}}}}"
 	client.Index("gb").Put()

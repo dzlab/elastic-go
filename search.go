@@ -171,11 +171,9 @@ func (this *Search) String() string {
 }
 
 /*
- * request mappings between the json fields and how Elasticsearch store them
- * GET /:index/:type/_search
+ * Construct the url of this Search API call
  */
-func (this *Search) Get() {
-	// construct the url
+func (this *Search) urlString() string {
 	url := this.url
 	if len(this.params) > 0 {
 		url += "?"
@@ -184,10 +182,20 @@ func (this *Search) Get() {
 			if value != "" {
 				url += "=" + value
 			}
-			url += url + "&"
+			url += "&"
 		}
 		url = url[:len(url)-1]
 	}
+	return url
+}
+
+/*
+ * request mappings between the json fields and how Elasticsearch store them
+ * GET /:index/:type/_search
+ */
+func (this *Search) Get() {
+	// construct the url
+	url := this.urlString()
 	// construct the body
 	body := this.String()
 	var data io.Reader = nil
