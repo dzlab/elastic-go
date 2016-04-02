@@ -9,7 +9,7 @@ import (
  */
 func TestIndexMappings(t *testing.T) {
 	acutal := []string{
-		newIndex().Mappings("products", NewMapping("").AddProperty("productID", "string", "not_analyzed")).String(),
+		newIndex().Mappings("products", NewMapping("").AddProperty("productID", "type", "string").AddProperty("productID", "index", "not_analyzed")).String(),
 	}
 	expected := []string{
 		`{"mappings":{"products":{"properties":{"productID":{"index":"not_analyzed","type":"string"}}}}}`,

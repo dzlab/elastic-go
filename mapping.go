@@ -51,15 +51,17 @@ func (this *Mapping) String() string {
 }
 
 /*
- * Add a mapping for a type's property
+ * Add a mapping for a type's property (e.g. type, index, analyzer, etc.)
  */
-func (this *Mapping) AddProperty(fieldname, fieldtype, indexing string) *Mapping {
+func (this *Mapping) AddProperty(fieldname, propertyname string, propertyvalue interface{}) *Mapping {
 	if this.query[PROPERTIES] == nil {
 		this.query[PROPERTIES] = make(Dict)
 	}
-	property := make(Dict)
-	property[TYPE] = fieldtype
-	property[INDEX] = indexing
+	property := this.query[PROPERTIES].(Dict)[fieldname]
+	if property == nil {
+		property = make(Dict)
+	}
+	property.(Dict)[propertyname] = propertyvalue
 	this.query[PROPERTIES].(Dict)[fieldname] = property
 	return this
 }
@@ -96,10 +98,10 @@ func (this *Mapping) Get() {
  * PUT /:index/_mapping/:type
  */
 func (this *Mapping) Put() {
-	body := this.String()
-	data := bytes.NewReader([]byte(body))
-	log.Println("PUT", this.url)
-	reader, err := exec("PUT", this.url, data)
+	query := this.String()
+	body := bytes.NewReader([]byte(query))
+	log.Println("PUT", this.url, query)
+	reader, err := exec("PUT", this.url, body)
 	if err != nil {
 		log.Println(err)
 		return
