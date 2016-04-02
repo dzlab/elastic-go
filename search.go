@@ -112,6 +112,14 @@ func (this *Search) AddParam(name, value string) *Search {
 }
 
 /*
+ * Pretiffy the response result
+ */
+func (this *Search) Pretty() *Search {
+	this.AddParam("pretty", "")
+	return this
+}
+
+/*
 * Add a query to this search request
  */
 func (this *Search) AddQuery(query Query) *Search {
@@ -168,15 +176,14 @@ func (this *Search) Get() {
 	// construct the url
 	url := this.urlString()
 	// construct the body
-	body := this.String()
-	var data io.Reader = nil
-	if body != "" {
-		data = bytes.NewReader([]byte(body))
+	query := this.String()
+	var body io.Reader
+	if query != "" {
+		body = bytes.NewReader([]byte(query))
 	}
 	// submit the request
-	log.Println("GET", url)
-	log.Println("query", body)
-	reader, err := exec("GET", url, data)
+	log.Println("GET", url, query)
+	reader, err := exec("GET", url, body)
 	if err != nil {
 		log.Println(err)
 		return
@@ -258,11 +265,19 @@ func (this *Bool) AddShould(query Query) *Bool {
 }
 
 /*
+ * Add a parameter to this `bool` query
+ */
+func (this *Bool) Add(name string, value interface{}) *Bool {
+	this.kv[name] = value
+	return this
+}
+
+/*
  * add a clause
  */
 func (this *Bool) add(key string, query Query) {
 	collection := this.kv[key]
-	//TODO check if query.Name exists, otherwise transform the map to array
+	// check if query.Name exists, otherwise transform the map to array
 	if collection == nil {
 		// at first the collection is a map
 		collection = make(Dict)
