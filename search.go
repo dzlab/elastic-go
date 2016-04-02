@@ -197,7 +197,7 @@ func (this *Object) Add(argument string, value interface{}) *Object {
 /*
  * specify multiple values to match
  */
-func (this *Object) AddMultiple(argument string, values ...string) *Object {
+func (this *Object) AddMultiple(argument string, values ...interface{}) *Object {
 	this.kv[argument] = values
 	return this
 }
@@ -261,12 +261,29 @@ func (this *Bool) AddShould(query Query) *Bool {
  * add a clause
  */
 func (this *Bool) add(key string, query Query) {
-	dict := this.kv[key]
-	if dict == nil {
-		dict = make(Dict)
+	collection := this.kv[key]
+	//TODO check if query.Name exists, otherwise transform the map to array
+	if collection == nil {
+		// at first the collection is a map
+		collection = make(Dict)
+		collection.(Dict)[query.Name()] = query.KV()
+	} else {
+		// when more items are added, then it becomes an array
+		dict := make(Dict)
+		dict[query.Name()] = query.KV()
+		// check if it is a map
+		if _, ok := collection.(Dict); ok {
+			array := []Dict{} // transform previous map into array
+			for k, v := range collection.(Dict) {
+				d := make(Dict)
+				d[k] = v
+				array = append(array, d)
+			}
+			collection = array
+		}
+		collection = append(collection.([]Dict), dict)
 	}
-	dict.(Dict)[query.Name()] = query.KV()
-	this.kv[key] = dict
+	this.kv[key] = collection
 }
 
 /*
@@ -288,4 +305,11 @@ func NewTerm() *Object {
  */
 func NewExists() *Object {
 	return NewQuery("exists")
+}
+
+/*
+ * Create a new `missing` filter (the inverse of `exists`)
+ */
+func NewMissing() *Object {
+	return NewQuery("missing")
 }

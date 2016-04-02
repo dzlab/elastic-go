@@ -54,10 +54,12 @@ func TestBool(t *testing.T) {
 	input := []string{
 		NewQuery("").AddQuery(NewBool().AddMust(NewQuery("match").Add("tweet", "elasticsearch"))).String(),
 		NewQuery("").AddQuery(NewBool().AddMust(NewQuery("match_all")).AddMustNot(NewQuery("match")).AddShould(NewQuery("match"))).String(),
+		NewQuery("").AddQuery(NewBool().AddShould(NewTerm().Add("price", 20)).AddShould(NewTerm().Add("productID", "XHDK-A-1293-#fJ3")).AddShould(NewTerm().Add("category", "smartphone"))).String(),
 	}
 	output := []string{
 		`{"bool":{"must":{"match":{"tweet":"elasticsearch"}}}}`,
 		`{"bool":{"must":{"match_all":{}},"must_not":{"match":{}},"should":{"match":{}}}}`,
+		`{"bool":{"should":[{"term":{"price":20}},{"term":{"productID":"XHDK-A-1293-#fJ3"}},{"term":{"category":"smartphone"}}]}}`,
 	}
 	equals(t, input, output)
 }
@@ -65,13 +67,15 @@ func TestBool(t *testing.T) {
 // test for 'term', 'terms' and 'exists' filters
 func TestFilters(t *testing.T) {
 	actual := []string{
-		String(NewQuery("").AddQuery(NewTerm().Add("age", 26)).KV()),
-		String(NewQuery("").AddQuery(NewTerms().AddMultiple("tag", "search", "full_text", "nosql")).KV()),
-		String(NewQuery("").AddQuery(NewExists().Add("field", "title")).KV()),
+		NewQuery("").AddQuery(NewTerm().Add("age", 26)).String(),
+		NewQuery("").AddQuery(NewTerms().AddMultiple("tag", "search", "full_text", "nosql")).String(),
+		NewQuery("").AddQuery(NewTerms().AddMultiple("price", 20, 30)).String(),
+		NewQuery("").AddQuery(NewExists().Add("field", "title")).String(),
 	}
 	expected := []string{
 		`{"term":{"age":26}}`,
 		`{"terms":{"tag":["search","full_text","nosql"]}}`,
+		`{"terms":{"price":[20,30]}}`,
 		`{"exists":{"field":"title"}}`,
 	}
 	equals(t, actual, expected)
