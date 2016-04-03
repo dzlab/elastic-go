@@ -49,6 +49,18 @@ func TestSearch(t *testing.T) {
 	equals(t, actual, expected)
 }
 
+// test for query clauses
+func TestQuery(t *testing.T) {
+	actual := []string{
+		newQuery().AddQuery(NewQuery("dis_max").AddQueries("queries", NewQuery("match").Add("title", "Brown fox"), NewQuery("match").Add("body", "Brown fox"))).String(),
+	}
+	expected := []string{
+		`{"dis_max":{"queries":[{"match":{"title":"Brown fox"}},{"match":{"body":"Brown fox"}}]}}`,
+	}
+
+	equals(t, actual, expected)
+}
+
 // test for bool clauses
 func TestBool(t *testing.T) {
 	input := []string{

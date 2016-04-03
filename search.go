@@ -23,6 +23,9 @@ const (
 	// url params
 	SEARCH_TYPE = "search_type"
 	SCROLL      = "scroll"
+	// query names
+	DIS_MAX     = "dis_max"
+	MULTI_MATCH = "multi_match"
 )
 
 /*
@@ -63,6 +66,27 @@ func NewQuery(name string) *Object {
 }
 
 /*
+ * Create a new match query
+ */
+func NewMatch() *Object {
+	return NewQuery(MATCH)
+}
+
+/*
+ * Create a new multi_match query
+ */
+func NewMultiMatch() *Object {
+	return NewQuery(MULTI_MATCH)
+}
+
+/*
+ * for test purpose
+ */
+func newQuery() *Object {
+	return &Object{name: "", kv: make(Dict)}
+}
+
+/*
  * Get a string representation of this object
  */
 func (this *Object) String() string {
@@ -85,7 +109,7 @@ func (this *Elasticsearch) Validate(index, class string, explain bool) *Search {
 	if explain {
 		url += "?" + EXPLAIN
 	}
-	return &Search{url: url, query: make(Dict)}
+	return &Search{url: url, params: make(map[string]string), query: make(Dict)}
 }
 
 /*
@@ -210,10 +234,42 @@ func (this *Object) AddMultiple(argument string, values ...interface{}) *Object 
 }
 
 /*
+ * Add multiple queries, under given `name`
+ */
+func (this *Object) AddQueries(name string, queries ...Query) *Object {
+	for _, q := range queries {
+		parent := NewQuery(name)
+		parent.AddQuery(q)
+		this.AddQuery(parent)
+	}
+	return this
+}
+
+/*
  * Add a sub query (e.g. a field query)
  */
 func (this *Object) AddQuery(query Query) *Object {
-	this.kv[query.Name()] = query.KV()
+	collection := this.kv[query.Name()]
+	// check if query.Name exists, otherwise transform the map to array
+	if collection == nil {
+		// at first the collection is a map
+		collection = query.KV()
+	} else {
+		// when more items are added, then it becomes an array
+		dict := query.KV()
+		// check if it is a map
+		if _, ok := collection.(Dict); ok {
+			array := []Dict{} // transform previous map into array
+			for k, v := range collection.(Dict) {
+				d := make(Dict)
+				d[k] = v
+				array = append(array, d)
+			}
+			collection = array
+		}
+		collection = append(collection.([]Dict), dict)
+	}
+	this.kv[query.Name()] = collection
 	return this
 }
 
