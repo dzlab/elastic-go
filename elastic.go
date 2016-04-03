@@ -6,6 +6,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"strings"
 )
 
 /*
@@ -64,8 +65,8 @@ type Unvalid struct {
 /*
  * Return a string representation of the dictionary
  */
-func String(dict Dict) string {
-	marshaled, err := json.Marshal(dict)
+func String(obj interface{}) string {
+	marshaled, err := json.Marshal(obj)
 	if err != nil {
 		log.Println(err)
 	}
@@ -78,7 +79,13 @@ func String(dict Dict) string {
 func urlString(prefix string, params map[string]string) string {
 	url := prefix
 	if len(params) > 0 {
-		url += "?"
+		if strings.Contains(url, "?") {
+			if len(params) > 0 {
+				url += "&"
+			}
+		} else {
+			url += "?"
+		}
 		for name, value := range params {
 			url += name
 			if value != "" {
