@@ -176,13 +176,21 @@ func (this *Analyzer) Add2(name string, value Dict) *Analyzer {
 }
 
 /*
+ * Pretify elasticsearch result
+ */
+func (this *Index) Pretty() *Index {
+	this.url += "?pretty"
+	return this
+}
+
+/*
  * Create an index
  * PUT /:index
  */
 func (this *Index) Put() {
-	log.Println("PUT", this.url)
-	body := String(this.dict)
-	reader, err := exec("PUT", this.url, bytes.NewReader([]byte(body)))
+	query := String(this.dict)
+	log.Println("PUT", this.url, query)
+	reader, err := exec("PUT", this.url, bytes.NewReader([]byte(query)))
 	if err != nil {
 		log.Println(err)
 		return
@@ -198,6 +206,7 @@ func (this *Index) Put() {
  * DELETE /:index
  */
 func (this *Index) Delete() {
+	log.Println("DELETE", this.url)
 	reader, err := exec("DELETE", this.url, nil)
 	if err != nil {
 		log.Println(err)
