@@ -2,6 +2,7 @@ elastic-go
 ==============
 [![Build Status](https://travis-ci.org/dzlab/elastic-go.png)](https://travis-ci.org/dzlab/elastic-go)
 [![Coverage Status](https://coveralls.io/repos/github/dzlab/elastic-go/badge.svg?branch=master)](https://coveralls.io/github/dzlab/elastic-go?branch=master)
+[![GoDoc](https://godoc.org/github.com/dzlab/elastic-go?status.svg)](https://godoc.org/github.com/dzlab/elastic-go)
 
 elastic-go is a golang client library that wraps Elasticsearch REST API. It currently has support for:
 * Search
