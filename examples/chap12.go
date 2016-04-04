@@ -9,6 +9,7 @@ import (
  * Structured search examples
  */
 func main() {
+	client := &e.Elasticsearch{Addr: "localhost:9200"}
 	// index
 	client.Index("my_store").Delete()
 	client.Index("my_store").Mappings("products", e.NewMapping("").AddProperty("productID", "string", "not_analyzed")).Put()
