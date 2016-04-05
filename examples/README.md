@@ -7,7 +7,8 @@ Each example can be installed independently from the rest:
 ```
 go get github.com/dzlab/elastic-go
 cd examples
-go build main.go
+go build -o main
+./main -run chap12
 ```
 
 ### Contribute

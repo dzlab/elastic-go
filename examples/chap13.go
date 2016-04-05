@@ -9,7 +9,7 @@ import (
  * Examples of queries based on Elasticsearch Definitive Guide, chapter 13
  * Full text search examples
  */
-func main() {
+func chap13() {
 	c := &e.Elasticsearch{Addr: "localhost:9200"}
 
 	// create index, delete if any

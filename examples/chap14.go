@@ -9,7 +9,7 @@ import (
  * Examples of queries based on Elasticsearch Definitive Guide, chapter 14
  * Multi-field search examples
  */
-func main() {
+func chap14() {
 	c := &e.Elasticsearch{Addr: "localhost:9200"}
 
 	// write a condition for each field then gather them into a `bool` search query

@@ -8,7 +8,7 @@ import (
  * Examples of queries based on Elasticsearch Definitive Guide, chapter 12
  * Structured search examples
  */
-func main() {
+func chap12() {
 	client := &e.Elasticsearch{Addr: "localhost:9200"}
 	// index
 	client.Index("my_store").Delete()
