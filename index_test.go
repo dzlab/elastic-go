@@ -44,7 +44,7 @@ func TestAnalyzer(t *testing.T) {
 	}
 	expected := []string{
 		`{"filter":{"my_stopwords":{"stopwords":["the","a"],"type":"stop"}}}`,
-		`{"char_filter":{"&_to_and":{"mappings":["&=> and "],"type":"mapping"}}}`,
+		`{"char_filter":{"&_to_and":{"mappings":["&=\u003e and "],"type":"mapping"}}}`,
 		`{"analyzer":{"my_analyzer":{"char_filter":["html_strip","&_to_and"],"filter":["lowercase","my_stopwords"],"tokenizer":"standard","type":"custom"}}}`,
 	}
 	// check if OK
