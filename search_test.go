@@ -31,7 +31,7 @@ func TestSearchUrl(t *testing.T) {
 		newSearch().AddParam(SEARCH_TYPE, "scan").AddParam(SCROLL, "1m").urlString(),
 	}
 	expected := []string{
-		"?scroll=1m&search_type=scan",
+		"?search_type=scan&scroll=1m",
 	}
 	equals(t, actual, expected)
 }
