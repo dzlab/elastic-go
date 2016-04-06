@@ -30,10 +30,17 @@ func TestSearchUrl(t *testing.T) {
 	actual := []string{
 		newSearch().AddParam(SEARCH_TYPE, "scan").AddParam(SCROLL, "1m").urlString(),
 	}
-	expected := []string{
+	expected1 := []string{
 		"?search_type=scan&scroll=1m",
 	}
-	equals(t, actual, expected)
+	expected2 := []string{
+		"?scroll=1m&search_type=scan",
+	}
+	for i := 0; i < len(actual); i++ {
+		if !(actual[i] == expected1[i] || actual[i] == expected2[i]) {
+			t.Errorf("%s Should be equal\n%s or %s", actual[i], expected1[i], expected2[i])
+		}
+	}
 }
 
 // test for search queries
