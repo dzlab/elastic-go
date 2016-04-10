@@ -14,8 +14,12 @@ type Analyze struct {
 	analyzer string
 }
 
+const (
+	ANALYZE = "analyze"
+)
+
 func (this *Elasticsearch) Analyze(index string) *Analyze {
-	url := fmt.Sprintf("http://%s/%s/_analyze", this.Addr, index)
+	var url string = this.request(index, "", -1, ANALYZE)
 	return &Analyze{url: url}
 }
 

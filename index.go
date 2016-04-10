@@ -16,6 +16,12 @@ const (
 	SHARDS_NB        = "number_of_shards"
 	REPLICAS_NB      = "number_of_replicas"
 	REFRESH_INTERVAL = "refresh_interval"
+	// analyzer params
+	TOKENIZER        = "tokenizer"        //
+	FILTER           = "filter"           //
+	MIN_SHINGLE_SIZE = "min_shingle_size" //
+	MAX_SHINGLE_SIZE = "max_shingle_size" //
+	OUTPUT_UNIGRAMS  = "output_unigrams"  //
 )
 
 type Index struct {

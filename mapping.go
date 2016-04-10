@@ -8,15 +8,16 @@ import (
 )
 
 const (
-	MAPPING            = "mapping"
-	MAPPINGS           = "mappings"
-	TYPE               = "type"
-	INDEX              = "index"
-	PROPERTIES         = "properties"
-	MATCH              = "match"
-	MATCH_MAPPING_TYPE = "match_mapping_type"
-	DYNAMIC_TEMPLATES  = "dynamic_templates"
-	DEFAULT            = "_default_"
+	MAPPING             = "mapping"
+	MAPPINGS            = "mappings"
+	TYPE                = "type"
+	INDEX               = "index"
+	PROPERTIES          = "properties"
+	MATCH               = "match"
+	MATCH_MAPPING_TYPE  = "match_mapping_type"
+	DYNAMIC_TEMPLATES   = "dynamic_templates"
+	DEFAULT             = "_default_"
+	POSITION_OFFSET_GAP = "position_offset_gap"
 )
 
 /*
