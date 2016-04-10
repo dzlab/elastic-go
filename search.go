@@ -2,6 +2,7 @@ package elastic
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -24,8 +25,15 @@ const (
 	SEARCH_TYPE = "search_type"
 	SCROLL      = "scroll"
 	// query names
-	DIS_MAX     = "dis_max"
-	MULTI_MATCH = "multi_match"
+	DIS_MAX       = "dis_max"
+	MULTI_MATCH   = "multi_match"
+	MATCH_PHRASE  = "match_phrase" // 'phrase' search query
+	RESCORE       = "rescore"      // rescore result of previous query
+	RESCORE_QUERY = "rescroe_query"
+	// query params
+	MINIMUM_SHOULD_MATCH = "minimum_should_match"
+	SLOP                 = "slop"        // in 'phrase' queries to describe proximity/word ordering
+	WINDOW_SIZE          = "window_size" // number of document from each shard
 )
 
 /*
@@ -77,6 +85,27 @@ func NewMatch() *Object {
  */
 func NewMultiMatch() *Object {
 	return NewQuery(MULTI_MATCH)
+}
+
+/*
+ * Create a `match_phrase` query to find words that are near each other
+ */
+func NewMatchPhrase() *Object {
+	return NewQuery(MATCH_PHRASE)
+}
+
+/*
+ * Create a `rescore` query
+ */
+func NewRescore() *Object {
+	return NewQuery(RESCORE)
+}
+
+/*
+ * Create a `rescore` query algorithm
+ */
+func NewRescoreQuery() *Object {
+	return NewQuery(RESCORE_QUERY)
 }
 
 /*
@@ -213,7 +242,23 @@ func (this *Search) Get() {
 		return
 	}
 	if data, err := ioutil.ReadAll(reader); err == nil {
-		fmt.Println(string(data))
+		// marshal response
+		search := SearchResult{}
+		if err := json.Unmarshal(data, &search); err == nil {
+			log.Println("search", string(data), search)
+		} else {
+			success := Success{}
+			if err := json.Unmarshal(data, &success); err == nil {
+				log.Println("success", string(data), success)
+			} else {
+				failure := Failure{}
+				if err := json.Unmarshal(data, &failure); err == nil {
+					log.Println("failed", string(data), failure)
+				} else {
+					fmt.Println("Failed to parse response", string(data))
+				}
+			}
+		}
 	}
 }
 
