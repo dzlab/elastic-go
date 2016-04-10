@@ -81,3 +81,9 @@ type SearchResult struct {
  * Elasticsearch insert result representation
  * e.g. {"_index":"my_index","_type":"groups","_id":"1","_version":1,"_shards":{"total":2,"successful":1,"failed":0},"created":true}
  */
+
+/////////////////////////////////// Bulk Query
+/*
+ * Elasticsearch bulk result representation
+ * e.g. {"took":118,"errors":false,"items":[{"index":{"_index":"my_index","_type":"my_type","_id":"1","_version":1,"_shards":{"total":2,"successful":1,"failed":0},"status":201}},{"index":{"_index":"my_index","_type":"my_type","_id":"2","_version":1,"_shards":{"total":2,"successful":1,"failed":0},"status":201}}]}
+ */
