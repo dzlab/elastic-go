@@ -28,7 +28,7 @@ func chap15() {
 	time.Sleep(1 * time.Second)
 	c.Search("my_index", "groups").AddQuery(e.NewQuery("query").AddQuery(e.NewMatchPhrase().Add("names", "Abraham Lincoln"))).Get()
 	// to avoid successive documents to appear in search result, use 'position_offset_gap' when creating the index in order to increase offset between these documents
-	c.Mapping("my_type", "groups").Delete()
+	c.Index("my_type/groups").Delete()
 	c.Mapping("my_type", "groups").AddProperty("names", "type", "string").AddProperty("names", e.POSITION_OFFSET_GAP, 100).Put()
 
 	// proximity query (phrase query with 'slop' higher than 0) includes proximity of query terms in the result '_score' field
