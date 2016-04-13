@@ -1,9 +1,11 @@
 package elastic
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"strings"
@@ -31,6 +33,30 @@ func (this *Elasticsearch) request(index, class string, id int64, request string
 		url = fmt.Sprintf("http://%s/%s/%s/%d/_%s", this.Addr, index, class, id, request)
 	}
 	return url
+}
+
+/*
+ * Execute a Get request and parse the response
+ */
+func (this *Elasticsearch) Get(url, query string, parser Parser) (interface{}, error) {
+	var body io.Reader
+	if query != "" {
+		body = bytes.NewReader([]byte(query))
+	}
+	// submit the request
+	log.Println("GET", url, query)
+	reader, err := exec("GET", url, body)
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+	if data, err := ioutil.ReadAll(reader); err == nil {
+		// marshal response
+		result := parser.Parse(data)
+		return result, nil
+	} else {
+		return nil, err
+	}
 }
 
 /*
