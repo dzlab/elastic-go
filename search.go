@@ -1,13 +1,6 @@
 package elastic
 
-import (
-	"bytes"
-	"encoding/json"
-	"fmt"
-	"io"
-	"io/ioutil"
-	"log"
-)
+import ()
 
 type Dict map[string]interface{}
 
@@ -40,6 +33,8 @@ const (
  * a request representing a search
  */
 type Search struct {
+	client *Elasticsearch
+	parser *SearchResultParser
 	url    string
 	params map[string]string
 	query  Dict
@@ -127,7 +122,12 @@ func (this *Object) String() string {
  */
 func (this *Elasticsearch) Explain(index, class string, id int64) *Search {
 	var url string = this.request(index, class, id, EXPLAIN)
-	return &Search{url: url, query: make(Dict)}
+	return &Search{
+		client: this,
+		parser: &SearchResultParser{},
+		url:    url,
+		query:  make(Dict),
+	}
 }
 
 /*
@@ -230,36 +230,8 @@ func (this *Search) Get() {
 	url := this.urlString()
 	// construct the body
 	query := this.String()
-	var body io.Reader
-	if query != "" {
-		body = bytes.NewReader([]byte(query))
-	}
-	// submit the request
-	log.Println("GET", url, query)
-	reader, err := exec("GET", url, body)
-	if err != nil {
-		log.Println(err)
-		return
-	}
-	if data, err := ioutil.ReadAll(reader); err == nil {
-		// marshal response
-		search := SearchResult{}
-		if err := json.Unmarshal(data, &search); err == nil {
-			log.Println("search", string(data), search)
-		} else {
-			success := Success{}
-			if err := json.Unmarshal(data, &success); err == nil {
-				log.Println("success", string(data), success)
-			} else {
-				failure := Failure{}
-				if err := json.Unmarshal(data, &failure); err == nil {
-					log.Println("failed", string(data), failure)
-				} else {
-					fmt.Println("Failed to parse response", string(data))
-				}
-			}
-		}
-	}
+
+	this.client.Get(url, query, this.parser)
 }
 
 /*
