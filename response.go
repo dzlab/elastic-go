@@ -74,6 +74,17 @@ type SearchResult struct {
  * Elasticsearch analyze result representation
  * e.g. {"tokens":[{"token":"quick","start_offset":0,"end_offset":5,"type":"<ALPHANUM>","position":0},{"token":"brown","start_offset":6,"end_offset":11,"type":"<ALPHANUM>","position":1},{"token":"fox","start_offset":12,"end_offset":15,"type":"<ALPHANUM>","position":2}]}
  */
+type AnalyzeResult struct {
+	tokens []AnalyzeToken `json:"tokens"`
+}
+
+type AnalyzeToken struct {
+	token       string `json:"token"`
+	startOffset int    `json:"start_offset"`
+	endOffset   int    `json:"end_offset"`
+	tokenType   string `json:"type"`
+	position    int    `json:"position"`
+}
 
 /////////////////////////////////// Insert Query
 
@@ -81,9 +92,23 @@ type SearchResult struct {
  * Elasticsearch insert result representation
  * e.g. {"_index":"my_index","_type":"groups","_id":"1","_version":1,"_shards":{"total":2,"successful":1,"failed":0},"created":true}
  */
+type InsertResult struct {
+	index   string `json:"_index"`
+	doctype string `json:"_type"`
+	id      int    `json:"_id"`
+	version int    `json:"version"`
+	shards  Shard  `json:"_shards"`
+	created bool   `json:"created"`
+	status  int    `json:"status"`
+}
 
 /////////////////////////////////// Bulk Query
 /*
  * Elasticsearch bulk result representation
  * e.g. {"took":118,"errors":false,"items":[{"index":{"_index":"my_index","_type":"my_type","_id":"1","_version":1,"_shards":{"total":2,"successful":1,"failed":0},"status":201}},{"index":{"_index":"my_index","_type":"my_type","_id":"2","_version":1,"_shards":{"total":2,"successful":1,"failed":0},"status":201}}]}
  */
+type BulkResult struct {
+	took   int            `josn:"took"`
+	errors bool           `json:"errors"`
+	items  []InsertResult `json:"items"`
+}
