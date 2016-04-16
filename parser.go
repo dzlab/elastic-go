@@ -43,3 +43,23 @@ func (parser *SearchResultParser) Parse(data []byte) interface{} {
 	}
 	return result
 }
+
+/*
+ * A parser for index result
+ */
+type IndexResultParser struct{}
+
+/*
+ * Parse the given data into an index result structure
+ */
+func (parser *IndexResultParser) Parse(data []byte) interface{} {
+	var result interface{}
+	/*index := IndexResult{}
+	if err := json.Unmarshal(data, &index); err == nil {
+		log.Println("index", string(data), index)
+	} else {
+		log.Println("Failed to parse response", string(data))
+	}*/
+	log.Println(string(data))
+	return result
+}

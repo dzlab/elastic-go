@@ -1,10 +1,8 @@
 package elastic
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"log"
 )
 
@@ -25,8 +23,10 @@ const (
 )
 
 type Index struct {
-	url  string
-	dict Dict
+	client *Elasticsearch
+	parser *IndexResultParser
+	url    string
+	dict   Dict
 }
 
 /*
@@ -42,7 +42,12 @@ func (idx *Index) String() string {
 
 func (client *Elasticsearch) Index(index string) *Index {
 	url := fmt.Sprintf("http://%s/%s", client.Addr, index)
-	return &Index{url: url, dict: make(Dict)}
+	return &Index{
+		client: client,
+		parser: &IndexResultParser{},
+		url:    url,
+		dict:   make(Dict),
+	}
 }
 
 /*
@@ -184,27 +189,20 @@ func (analyzer *Analyzer) Add2(name string, value Dict) *Analyzer {
 /*
  * Pretify elasticsearch result
  */
-func (analyzer *Index) Pretty() *Index {
-	analyzer.url += "?pretty"
-	return analyzer
+func (idx *Index) Pretty() *Index {
+	idx.url += "?pretty"
+	return idx
 }
 
 /*
  * Create an index
  * PUT /:index
  */
-func (analyzer *Index) Put() {
-	query := String(analyzer.dict)
-	log.Println("PUT", analyzer.url, query)
-	reader, err := exec("PUT", analyzer.url, bytes.NewReader([]byte(query)))
-	if err != nil {
-		log.Println(err)
-		return
-	}
-	if data, err := ioutil.ReadAll(reader); err == nil {
-		fmt.Println(string(data))
-	}
+func (idx *Index) Put() {
+	url := idx.url
+	query := String(idx.dict)
 
+	idx.client.Execute("PUT", url, query, idx.parser)
 }
 
 /*
@@ -212,13 +210,5 @@ func (analyzer *Index) Put() {
  * DELETE /:index
  */
 func (idx *Index) Delete() {
-	log.Println("DELETE", idx.url)
-	reader, err := exec("DELETE", idx.url, nil)
-	if err != nil {
-		log.Println(err)
-		return
-	}
-	if data, err := ioutil.ReadAll(reader); err == nil {
-		fmt.Println(string(data))
-	}
+	idx.client.Execute("PUT", idx.url, "", idx.parser)
 }

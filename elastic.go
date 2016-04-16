@@ -36,16 +36,16 @@ func (client *Elasticsearch) request(index, class string, id int64, request stri
 }
 
 /*
- * Execute a Get request and parse the response
+ * Execute an HTTP request and parse the response
  */
-func (client *Elasticsearch) Get(url, query string, parser Parser) (interface{}, error) {
+func (client *Elasticsearch) Execute(method, url, query string, parser Parser) (interface{}, error) {
 	var body io.Reader
 	if query != "" {
 		body = bytes.NewReader([]byte(query))
 	}
 	// submit the request
-	log.Println("GET", url, query)
-	reader, err := exec("GET", url, body)
+	log.Println(method, url, query)
+	reader, err := exec(method, url, body)
 	if err != nil {
 		log.Println(err)
 		return nil, err

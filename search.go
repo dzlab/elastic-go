@@ -238,7 +238,7 @@ func (search *Search) Get() {
 	// construct the body
 	query := search.String()
 
-	search.client.Get(url, query, search.parser)
+	search.client.Execute("GET", url, query, search.parser)
 }
 
 /*
