@@ -210,5 +210,5 @@ func (idx *Index) Put() {
  * DELETE /:index
  */
 func (idx *Index) Delete() {
-	idx.client.Execute("PUT", idx.url, "", idx.parser)
+	idx.client.Execute("DELETE", idx.url, "", idx.parser)
 }

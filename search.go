@@ -18,15 +18,20 @@ const (
 	SearchType = "search_type"
 	SCROLL     = "scroll"
 	// query names
-	DisMax       = "dis_max"
-	MultiMatch   = "multi_match"
-	MatchPhrase  = "match_phrase" // 'phrase' search query
-	RESCORE      = "rescore"      // rescore result of previous query
-	RescoreQuery = "rescroe_query"
+	DisMax            = "dis_max"
+	MultiMatch        = "multi_match"
+	MatchPhrase       = "match_phrase" // 'phrase' search query
+	MatchPhrasePrefix = "match_phrase_prefix"
+	Prefix            = "prefix"   // search terms with given prefix
+	Wildcard          = "wildcard" // search terms with widcard
+	RegExp            = "regexp"   // filter terms application to regular expression
+	RESCORE           = "rescore"  // rescore result of previous query
+	RescoreQuery      = "rescroe_query"
 	// query params
 	MinimumShouldMatch = "minimum_should_match"
-	SLOP               = "slop"        // in 'phrase' queries to describe proximity/word ordering
-	WindowSize         = "window_size" // number of document from each shard
+	SLOP               = "slop"           // in 'phrase' queries to describe proximity/word ordering
+	MaxExpansions      = "max_expansions" // controls how many terms the prefix is allowed to match
+	WindowSize         = "window_size"    // number of document from each shard
 )
 
 /*

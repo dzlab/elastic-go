@@ -1,14 +1,12 @@
 package elastic
 
 import (
-	"bytes"
 	"fmt"
-	"io"
-	"io/ioutil"
-	"log"
 )
 
 type Analyze struct {
+	client   *Elasticsearch
+	parser   Parser
 	url      string
 	field    string
 	analyzer string
@@ -20,7 +18,11 @@ const (
 
 func (client *Elasticsearch) Analyze(index string) *Analyze {
 	var url string = client.request(index, "", -1, ANALYZE)
-	return &Analyze{url: url}
+	return &Analyze{
+		client: client,
+		parser: &AnalyzeResultParser{},
+		url:    url,
+	}
 }
 
 /*
@@ -43,6 +45,7 @@ func (analyzer *Analyze) Analyzer(name string) *Analyze {
  * GET /:index/_analyze?field=field_name
  */
 func (analyzer *Analyze) Get(body string) {
+	// construct the url
 	url := analyzer.url
 	if analyzer.field != "" {
 		url = fmt.Sprintf("%s?field=%s", url, analyzer.field)
@@ -50,18 +53,5 @@ func (analyzer *Analyze) Get(body string) {
 		url = fmt.Sprintf("%s?analyzer=%s", url, analyzer.analyzer)
 	}
 	// construct the body
-	var data io.Reader = nil
-	if body != "" {
-		data = bytes.NewReader([]byte(body))
-	}
-	// submit url
-	log.Println("GET", url)
-	reader, err := exec("GET", url, data)
-	if err != nil {
-		log.Println(err)
-		return
-	}
-	if data, err := ioutil.ReadAll(reader); err == nil {
-		fmt.Println(string(data))
-	}
+	analyzer.client.Execute("GET", url, body, analyzer.parser)
 }

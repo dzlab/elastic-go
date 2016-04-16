@@ -8,9 +8,9 @@ import (
 func TestMappings(t *testing.T) {
 	// given input
 	actual := []string{
-		NewMapping("").AddProperty("tag", "type", "string").AddProperty("tag", "index", "not_analyzed").String(),
-		NewMapping("").AddDocumentType(NewDefaultType().AddTemplate(NewAllTemplate().AddProperty("enabled", false))).String(),
-		NewMapping("").AddDocumentType(NewDocType("my_type").AddDynamicTemplate(NewTemplate("es").AddMatch("_es").AddProperty(MatchMappingType, "string").AddMappingProperty("type", "string").AddMappingProperty("analyzer", "spanish"))).String(),
+		NewMapping().AddProperty("tag", "type", "string").AddProperty("tag", "index", "not_analyzed").String(),
+		NewMapping().AddDocumentType(NewDefaultType().AddTemplate(NewAllTemplate().AddProperty("enabled", false))).String(),
+		NewMapping().AddDocumentType(NewDocType("my_type").AddDynamicTemplate(NewTemplate("es").AddMatch("_es").AddProperty(MatchMappingType, "string").AddMappingProperty("type", "string").AddMappingProperty("analyzer", "spanish"))).String(),
 	}
 	// expected result
 	expected := []string{

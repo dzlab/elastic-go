@@ -58,8 +58,13 @@ type Hits struct {
 }
 
 /*
+ * Elasticsearch explain result
+ * e.g. {"valid":true,"_shards":{"total":1,"successful":1,"failed":0},"explanations":[{"index":"my_index","valid":true,"explanation":"+((name:b name:br name:bro name:brow name:brown) (name:f name:fo)) #ConstantScore(+ConstantScore(_type:my_type))"}]}
+ */
+/*
  * Elastisearch search result representation
  * e.g. {"took":1,"timed_out":false,"_shards":{"total":5,"successful":5,"failed":0},"hits":{"total":0,"max_score":null,"hits":[]}}
+ * e.g. {"took":3,"timed_out":false,"_shards":{"total":1,"successful":1,"failed":0},"hits":{"total":1,"max_score":0.50741017,"hits":[{"_index":"my_index","_type":"my_type","_id":"1","_score":0.50741017,"_source":{"name":"Brown foxes"}}]}}
  */
 type SearchResult struct {
 	Took     int   `json:"took"`
@@ -95,7 +100,7 @@ type AnalyzeToken struct {
 type InsertResult struct {
 	index   string `json:"_index"`
 	doctype string `json:"_type"`
-	id      int    `json:"_id"`
+	id      string `json:"_id"`
 	version int    `json:"version"`
 	shards  Shard  `json:"_shards"`
 	created bool   `json:"created"`

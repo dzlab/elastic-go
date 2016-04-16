@@ -1,19 +1,16 @@
 package elastic
 
-import (
-	"bytes"
-	"fmt"
-	"io/ioutil"
-	"log"
-)
+import ()
 
 const (
 	BULK = "bulk"
 )
 
 type Bulk struct {
-	url string
-	ops []Dict
+	client *Elasticsearch
+	parser Parser
+	url    string
+	ops    []Dict
 }
 
 /*
@@ -66,7 +63,12 @@ func (op *Operation) String() string {
  */
 func (client *Elasticsearch) Bulk(index, docType string) *Bulk {
 	url := client.request(index, docType, -1, BULK)
-	return &Bulk{url: url, ops: []Dict{}}
+	return &Bulk{
+		client: client,
+		parser: &BulkResultParser{},
+		url:    url,
+		ops:    []Dict{},
+	}
 }
 
 /*
@@ -96,15 +98,5 @@ func (bulk *Bulk) String() string {
  * POST /:index/:type/_bulk
  */
 func (bulk *Bulk) Post() {
-	log.Println("POST", bulk.url)
-	body := bulk.String()
-	data := bytes.NewReader([]byte(body))
-	reader, err := exec("POST", bulk.url, data)
-	if err != nil {
-		log.Println(err)
-		return
-	}
-	if data, err := ioutil.ReadAll(reader); err == nil {
-		fmt.Println(string(data))
-	}
+	bulk.client.Execute("POST", bulk.url, bulk.String(), bulk.parser)
 }

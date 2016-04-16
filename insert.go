@@ -1,20 +1,18 @@
 package elastic
 
 import (
-	"bytes"
 	"fmt"
-	"io"
-	"io/ioutil"
-	"log"
 )
 
 /*
  * a request representing an insert
  */
 type Insert struct {
-	url string
-	id  int64
-	doc interface{}
+	client *Elasticsearch
+	parser Parser
+	url    string
+	id     int64
+	doc    interface{}
 }
 
 /*
@@ -22,7 +20,11 @@ type Insert struct {
  */
 func (client *Elasticsearch) Insert(index, doctype string) *Insert {
 	var url string = fmt.Sprintf("http://%s/%s/%s", client.Addr, index, doctype)
-	return &Insert{url: url}
+	return &Insert{
+		client: client,
+		parser: &InsertResultParser{},
+		url:    url,
+	}
 }
 
 /*
@@ -57,18 +59,5 @@ func (insert *Insert) Put() {
 	url := fmt.Sprintf("%s/%d", insert.url, insert.id)
 	// construct the body
 	query := insert.String()
-	var body io.Reader
-	if query != "" {
-		body = bytes.NewReader([]byte(query))
-	}
-	// submit the request
-	log.Println("PUT", url, query)
-	reader, err := exec("PUT", url, body)
-	if err != nil {
-		log.Println(err)
-		return
-	}
-	if data, err := ioutil.ReadAll(reader); err == nil {
-		fmt.Println(string(data))
-	}
+	insert.client.Execute("PUT", url, query, insert.parser)
 }

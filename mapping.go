@@ -1,11 +1,6 @@
 package elastic
 
-import (
-	"bytes"
-	"fmt"
-	"io/ioutil"
-	"log"
-)
+import ()
 
 const (
 	MAPPING           = "mapping"
@@ -18,21 +13,39 @@ const (
 	DynamicTemplates  = "dynamic_templates"
 	DEFAULT           = "_default_"
 	PositionOffsetGap = "position_offset_gap"
+	IndexAnalyzer     = "index_analyzer"  // index-time analyzer
+	SearchAnalyzer    = "search_analyzer" // search-time analyzer
 )
 
 /*
  * mappings between the json fields and how Elasticsearch store them
  */
 type Mapping struct {
-	url   string
-	query Dict
+	client *Elasticsearch
+	parser *MappingResultParser
+	url    string
+	query  Dict
 }
 
 /*
  * Create a new mapping query
  */
-func NewMapping(url string) *Mapping {
-	return &Mapping{url: url, query: make(Dict)}
+func NewMapping() *Mapping {
+	return &Mapping{
+		query: make(Dict),
+	}
+}
+
+/*
+ * Create a new mapping query
+ */
+func newMapping(client *Elasticsearch, url string) *Mapping {
+	return &Mapping{
+		client: client,
+		parser: &MappingResultParser{},
+		url:    url,
+		query:  make(Dict),
+	}
 }
 
 /*
@@ -41,7 +54,7 @@ func NewMapping(url string) *Mapping {
  */
 func (client *Elasticsearch) Mapping(index, doctype string) *Mapping {
 	var url string = client.request(index, doctype, -1, MAPPING)
-	return NewMapping(url)
+	return newMapping(client, url)
 }
 
 /*
@@ -67,6 +80,14 @@ func (mapping *Mapping) AddProperty(fieldname, propertyname string, propertyvalu
 	return mapping
 }
 
+func (mapping *Mapping) AddField(name string, body Dict) *Mapping {
+	if mapping.query[PROPERTIES] == nil {
+		mapping.query[PROPERTIES] = make(Dict)
+	}
+	mapping.query[PROPERTIES].(Dict)[name] = body
+	return mapping
+}
+
 /*
  * Add a mapping for a type of objects
  */
@@ -83,15 +104,7 @@ func (mapping *Mapping) AddDocumentType(class *DocType) *Mapping {
  * GET /:index/_mapping/:type
  */
 func (mapping *Mapping) Get() {
-	log.Println("GET", mapping.url)
-	reader, err := exec("GET", mapping.url, nil)
-	if err != nil {
-		log.Println(err)
-		return
-	}
-	if data, err := ioutil.ReadAll(reader); err == nil {
-		fmt.Println(string(data))
-	}
+	mapping.client.Execute("GET", mapping.url, "", mapping.parser)
 }
 
 /*
@@ -99,17 +112,9 @@ func (mapping *Mapping) Get() {
  * PUT /:index/_mapping/:type
  */
 func (mapping *Mapping) Put() {
+	url := mapping.url
 	query := mapping.String()
-	body := bytes.NewReader([]byte(query))
-	log.Println("PUT", mapping.url, query)
-	reader, err := exec("PUT", mapping.url, body)
-	if err != nil {
-		log.Println(err)
-		return
-	}
-	if data, err := ioutil.ReadAll(reader); err == nil {
-		fmt.Println(string(data))
-	}
+	mapping.client.Execute("PUT", url, query, mapping.parser)
 }
 
 /*
