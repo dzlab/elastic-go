@@ -12,7 +12,7 @@ func chap12() {
 	client := &e.Elasticsearch{Addr: "localhost:9200"}
 	// index
 	client.Index("my_store").Delete()
-	client.Index("my_store").Mappings("products", e.NewMapping("").AddProperty("productID", "string", "not_analyzed")).Put()
+	client.Index("my_store").Mappings("products", e.NewMapping().AddProperty("productID", "string", "not_analyzed")).Put()
 	// Bulk
 	client.Bulk("my_store", "products").AddOperation(e.NewOperation(1).Add("price", 10).Add("productID", "XHDK-A-1293-#fJ3")).AddOperation(e.NewOperation(2).Add("price", 20).Add("productID", "KDKE-B-9947-#kL5")).AddOperation(e.NewOperation(3).Add("price", 30).Add("productID", "JODL-X-1937-#pV7")).AddOperation(e.NewOperation(4).Add("price", 30).Add("productID", "QQPX-R-3956-#aD8")).Post()
 	// Search

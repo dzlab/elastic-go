@@ -55,7 +55,7 @@ func chap14() {
 
 	// Multi-field mapping, combing stemming analyzer (e.g. english) with standard analyzer
 	c.Index("my_index").Delete()
-	c.Index("my_index").SetShardsNb(1).Mappings("my_type", e.NewMapping("").AddProperty("title", "type", "string").AddProperty("title", "analyzer", "english").AddProperty("title", "fields", e.Dict{"std": e.Dict{"type": "string", "analyzer": "standard"}})).Put()
+	c.Index("my_index").SetShardsNb(1).Mappings("my_type", e.NewMapping().AddProperty("title", "type", "string").AddProperty("title", "analyzer", "english").AddProperty("title", "fields", e.Dict{"std": e.Dict{"type": "string", "analyzer": "standard"}})).Put()
 	c.Insert("my_index", "my_type").Document(1, e.Dict{"title": "My rabbit jumps"}).Put()
 	c.Insert("my_index", "my_type").Document(2, e.Dict{"title": "Jumping jack rabbits"}).Put()
 	time.Sleep(1 * time.Second)
@@ -76,7 +76,7 @@ func chap14() {
 
 	// custom _all fields to copy to it values of a combination of fields and search on them
 	c.Index("my_index").Delete()
-	c.Index("my_index").Mappings("person", e.NewMapping("").AddProperty("first_name", "type", "string").AddProperty("first_name", "copy_to", "full_name").AddProperty("last_name", "type", "string").AddProperty("last_name", "copy_to", "full_name").AddProperty("full_name", "type", "string")).Pretty().Put()
+	c.Index("my_index").Mappings("person", e.NewMapping().AddProperty("first_name", "type", "string").AddProperty("first_name", "copy_to", "full_name").AddProperty("last_name", "type", "string").AddProperty("last_name", "copy_to", "full_name").AddProperty("full_name", "type", "string")).Pretty().Put()
 
 	// multi_match query with type `cross_fields` to search on combined fields instead of modifying mapping (as previous) for each possible combination
 	// check difference of how the musti_match search is broken for most_fields then cross_fields
