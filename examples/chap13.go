@@ -15,7 +15,7 @@ func chap13() {
 	// create index, delete if any
 	c.Index("my_index").Delete()
 	// use one primary shard
-	c.Index("my_index").AddSetting(e.SHARDS_NB, 1).Put()
+	c.Index("my_index").AddSetting(e.ShardsNumber, 1).Put()
 
 	// insert some test data
 	c.Bulk("my_index", "my_type").AddOperation(e.NewOperation(1).Add("title", "The quick brown fox")).AddOperation(e.NewOperation(2).Add("title", "The quick brown fox jumps over the lazy dog")).AddOperation(e.NewOperation(3).Add("title", "The quick brown fox jumps over the quick dog")).AddOperation(e.NewOperation(4).Add("title", "Brown fox brown dog")).Post()

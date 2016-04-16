@@ -20,8 +20,8 @@ type Insert struct {
 /*
  * Create an Insert request, that will submit a new document to elastic search
  */
-func (this *Elasticsearch) Insert(index, doctype string) *Insert {
-	var url string = fmt.Sprintf("http://%s/%s/%s", this.Addr, index, doctype)
+func (client *Elasticsearch) Insert(index, doctype string) *Insert {
+	var url string = fmt.Sprintf("http://%s/%s/%s", client.Addr, index, doctype)
 	return &Insert{url: url}
 }
 
@@ -35,28 +35,28 @@ func newInsert() *Insert {
 /*
  * Set the document to insert
  */
-func (this *Insert) Document(id int64, doc interface{}) *Insert {
-	this.id = id
-	this.doc = doc
-	return this
+func (insert *Insert) Document(id int64, doc interface{}) *Insert {
+	insert.id = id
+	insert.doc = doc
+	return insert
 }
 
 /*
  * Get a string representation of the document
  */
-func (this *Insert) String() string {
-	return String(this.doc)
+func (insert *Insert) String() string {
+	return String(insert.doc)
 }
 
 /*
  * request mappings between the json fields and how Elasticsearch store them
  * PUT /:index/:type/:id
  */
-func (this *Insert) Put() {
+func (insert *Insert) Put() {
 	// construct the url
-	url := fmt.Sprintf("%s/%d", this.url, this.id)
+	url := fmt.Sprintf("%s/%d", insert.url, insert.id)
 	// construct the body
-	query := this.String()
+	query := insert.String()
 	var body io.Reader
 	if query != "" {
 		body = bytes.NewReader([]byte(query))

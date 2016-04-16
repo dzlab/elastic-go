@@ -18,36 +18,36 @@ const (
 	ANALYZE = "analyze"
 )
 
-func (this *Elasticsearch) Analyze(index string) *Analyze {
-	var url string = this.request(index, "", -1, ANALYZE)
+func (client *Elasticsearch) Analyze(index string) *Analyze {
+	var url string = client.request(index, "", -1, ANALYZE)
 	return &Analyze{url: url}
 }
 
 /*
  * Analyze a field
  */
-func (this *Analyze) Field(field string) *Analyze {
-	this.field = field
-	return this
+func (analyzer *Analyze) Field(field string) *Analyze {
+	analyzer.field = field
+	return analyzer
 }
 
 /*
- * Analyze an analyzer
+ * Analyze an analyzer given by name
  */
-func (this *Analyze) Analyzer(analyzer string) *Analyze {
-	this.analyzer = analyzer
-	return this
+func (analyzer *Analyze) Analyzer(name string) *Analyze {
+	analyzer.analyzer = name
+	return analyzer
 }
 
 /*
  * GET /:index/_analyze?field=field_name
  */
-func (this *Analyze) Get(body string) {
-	url := this.url
-	if this.field != "" {
-		url = fmt.Sprintf("%s?field=%s", url, this.field)
-	} else if this.analyzer != "" {
-		url = fmt.Sprintf("%s?analyzer=%s", url, this.analyzer)
+func (analyzer *Analyze) Get(body string) {
+	url := analyzer.url
+	if analyzer.field != "" {
+		url = fmt.Sprintf("%s?field=%s", url, analyzer.field)
+	} else if analyzer.analyzer != "" {
+		url = fmt.Sprintf("%s?analyzer=%s", url, analyzer.analyzer)
 	}
 	// construct the body
 	var data io.Reader = nil

@@ -4,6 +4,13 @@ import (
 	"testing"
 )
 
+/*
+ * Create a new Search API call
+ */
+func emptySearch() *Search {
+	return &Search{url: "", params: make(map[string]string), query: make(Dict)}
+}
+
 // test for general queries
 func TestGeneral(t *testing.T) {
 	// given input
@@ -28,7 +35,7 @@ func TestGeneral(t *testing.T) {
 // test for search url
 func TestSearchUrl(t *testing.T) {
 	actual := []string{
-		newSearch().AddParam(SEARCH_TYPE, "scan").AddParam(SCROLL, "1m").urlString(),
+		emptySearch().AddParam(SearchType, "scan").AddParam(SCROLL, "1m").urlString(),
 	}
 	expected1 := []string{
 		"?search_type=scan&scroll=1m",
@@ -46,8 +53,8 @@ func TestSearchUrl(t *testing.T) {
 // test for search queries
 func TestSearch(t *testing.T) {
 	actual := []string{
-		newSearch().AddParam("search_type", "scan").AddParam("scroll", "1m").AddQuery(NewQuery("query").AddQuery(NewQuery("range").AddQuery(NewQuery("data").Add("gte", "2014-01-01").Add("lt", "2014-02-01")))).Add("size", 1000).String(),
-		newSearch().AddQuery(NewQuery("query").AddQuery(NewQuery("match_all"))).AddSource("title").AddSource("created").String(),
+		emptySearch().AddParam("search_type", "scan").AddParam("scroll", "1m").AddQuery(NewQuery("query").AddQuery(NewQuery("range").AddQuery(NewQuery("data").Add("gte", "2014-01-01").Add("lt", "2014-02-01")))).Add("size", 1000).String(),
+		emptySearch().AddQuery(NewQuery("query").AddQuery(NewQuery("match_all"))).AddSource("title").AddSource("created").String(),
 	}
 	expected := []string{
 		`{"query":{"range":{"data":{"gte":"2014-01-01","lt":"2014-02-01"}}},"size":1000}`,

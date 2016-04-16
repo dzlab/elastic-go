@@ -29,23 +29,23 @@ func chap15() {
 	c.Search("my_index", "groups").AddQuery(e.NewQuery("query").AddQuery(e.NewMatchPhrase().Add("names", "Abraham Lincoln"))).Get()
 	// to avoid successive documents to appear in search result, use 'position_offset_gap' when creating the index in order to increase offset between these documents
 	c.Index("my_type/groups").Delete()
-	c.Mapping("my_type", "groups").AddProperty("names", "type", "string").AddProperty("names", e.POSITION_OFFSET_GAP, 100).Put()
+	c.Mapping("my_type", "groups").AddProperty("names", "type", "string").AddProperty("names", e.PositionOffsetGap, 100).Put()
 
 	// proximity query (phrase query with 'slop' higher than 0) includes proximity of query terms in the result '_score' field
 	c.Search("my_index", "my_type").AddQuery(e.NewQuery("query").AddQuery(e.NewMatchPhrase().AddQuery(e.NewQuery("title").Add("query", "quick dog").Add("slop", 50)))).Get()
 
 	// proximity queries can be compbined with 'match' query to filter irrelevant documnets
-	c.Search("my_index", "my_type").AddQuery(e.NewQuery("query").AddQuery(e.NewBool().AddMust(e.NewMatch().AddQuery(e.NewQuery("title").Add("query", "quick brown fox").Add(e.MINIMUM_SHOULD_MATCH, "30%"))).AddShould(e.NewMatchPhrase().AddQuery(e.NewQuery("title").Add("query", "quick brwon fox").Add(e.SLOP, 50))))).Get()
+	c.Search("my_index", "my_type").AddQuery(e.NewQuery("query").AddQuery(e.NewBool().AddMust(e.NewMatch().AddQuery(e.NewQuery("title").Add("query", "quick brown fox").Add(e.MinimumShouldMatch, "30%"))).AddShould(e.NewMatchPhrase().AddQuery(e.NewQuery("title").Add("query", "quick brwon fox").Add(e.SLOP, 50))))).Get()
 
 	// beware of performance overhead, as a simple 'term' query is 10 times as fast as a 'phrase' query, and 20 times as fast as a proximity query (phrase query with 'slop')
 	// to increase performance, one option will be to reduce number of documents
 	// we case use 'match' query, to catch relevant documents than rescore using some scoring algorithm
-	c.Search("my_index", "my_type").AddQuery(e.NewQuery("query").AddQuery(e.NewMatch().AddQuery(e.NewQuery("title").Add("query", "quick brown fox").Add(e.MINIMUM_SHOULD_MATCH, "30%")))).AddQuery(e.NewRescore().Add(e.WINDOW_SIZE, 50).AddQuery(e.NewQuery("query").AddQuery(e.NewRescoreQuery().AddQuery(e.NewMatchPhrase().AddQuery(e.NewQuery("title").Add("query", "quick brown fox").Add("slop", 50)))))).Get()
+	c.Search("my_index", "my_type").AddQuery(e.NewQuery("query").AddQuery(e.NewMatch().AddQuery(e.NewQuery("title").Add("query", "quick brown fox").Add(e.MinimumShouldMatch, "30%")))).AddQuery(e.NewRescore().Add(e.WindowSize, 50).AddQuery(e.NewQuery("query").AddQuery(e.NewRescoreQuery().AddQuery(e.NewMatchPhrase().AddQuery(e.NewQuery("title").Add("query", "quick brown fox").Add("slop", 50)))))).Get()
 
 	// instead of indexing words separately, we can index bigrams (or shingles) to retain more of the context in which words occured
 	// producing shingles
 	c.Index("my_index").Delete()
-	c.Index("my_index").SetShardsNb(1).AddAnalyzer(e.NewAnalyzer("filter").Add2("my_shingle_filter", e.Dict{e.TYPE: "string", e.MIN_SHINGLE_SIZE: 2, e.MAX_SHINGLE_SIZE: 2, e.OUTPUT_UNIGRAMS: false})).AddAnalyzer(e.NewAnalyzer("analyzer").Add2("my_shingle_analyzer", e.Dict{e.TYPE: "custom", e.TOKENIZER: "standard", e.FILTER: []string{"lowercase", "my_shingle_filter"}})).Put()
+	c.Index("my_index").SetShardsNb(1).AddAnalyzer(e.NewAnalyzer("filter").Add2("my_shingle_filter", e.Dict{e.TYPE: "string", e.MinShingleSize: 2, e.MaxShingleSize: 2, e.OutputUnigrams: false})).AddAnalyzer(e.NewAnalyzer("analyzer").Add2("my_shingle_analyzer", e.Dict{e.TYPE: "custom", e.TOKENIZER: "standard", e.FILTER: []string{"lowercase", "my_shingle_filter"}})).Put()
 
 	// index unigrams and bigrams separately
 	// create title field as multi-field: unigrams(title), (title.shingles)

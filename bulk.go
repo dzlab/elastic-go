@@ -41,50 +41,50 @@ func NewOperation(id int) *Operation {
 /*
  * Add a field to this document
  */
-func (this *Operation) Add(name string, value interface{}) *Operation {
-	this.doc[name] = value
-	return this
+func (op *Operation) Add(name string, value interface{}) *Operation {
+	op.doc[name] = value
+	return op
 }
 
 /*
  * Add a field with multiple values to this document
  */
-func (this *Operation) AddMultiple(name string, values ...interface{}) *Operation {
-	this.doc[name] = values
-	return this
+func (op *Operation) AddMultiple(name string, values ...interface{}) *Operation {
+	op.doc[name] = values
+	return op
 }
 
 /*
  * Get a string representation of this operation
  */
-func (this *Operation) String() string {
-	return String(this.doc)
+func (op *Operation) String() string {
+	return String(op.doc)
 }
 
 /*
  * Create a new Bulk operations
  */
-func (this *Elasticsearch) Bulk(index, docType string) *Bulk {
-	url := this.request(index, docType, -1, BULK)
+func (client *Elasticsearch) Bulk(index, docType string) *Bulk {
+	url := client.request(index, docType, -1, BULK)
 	return &Bulk{url: url, ops: []Dict{}}
 }
 
 /*
  * Add an operation to this bulk
  */
-func (this *Bulk) AddOperation(op *Operation) *Bulk {
+func (bulk *Bulk) AddOperation(op *Operation) *Bulk {
 	indexOp := Dict{"index": Dict{"_id": op._id}}
-	this.ops = append(this.ops, indexOp)
-	this.ops = append(this.ops, op.doc)
-	return this
+	bulk.ops = append(bulk.ops, indexOp)
+	bulk.ops = append(bulk.ops, op.doc)
+	return bulk
 }
 
 /*
  * Get a string representation of the list of operations in this bulk
  */
-func (this *Bulk) String() string {
+func (bulk *Bulk) String() string {
 	ops := ""
-	for _, op := range this.ops {
+	for _, op := range bulk.ops {
 		ops += String(op) + "\n"
 	}
 	ops = ops[:len(ops)-len("\n")]
@@ -95,11 +95,11 @@ func (this *Bulk) String() string {
  * Submit a bulk that consists of a list of operations
  * POST /:index/:type/_bulk
  */
-func (this *Bulk) Post() {
-	log.Println("POST", this.url)
-	body := this.String()
+func (bulk *Bulk) Post() {
+	log.Println("POST", bulk.url)
+	body := bulk.String()
 	data := bytes.NewReader([]byte(body))
-	reader, err := exec("POST", this.url, data)
+	reader, err := exec("POST", bulk.url, data)
 	if err != nil {
 		log.Println(err)
 		return

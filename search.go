@@ -15,18 +15,18 @@ const (
 	INCLUDE = "include_in_all"
 	SOURCE  = "_source"
 	// url params
-	SEARCH_TYPE = "search_type"
-	SCROLL      = "scroll"
+	SearchType = "search_type"
+	SCROLL     = "scroll"
 	// query names
-	DIS_MAX       = "dis_max"
-	MULTI_MATCH   = "multi_match"
-	MATCH_PHRASE  = "match_phrase" // 'phrase' search query
-	RESCORE       = "rescore"      // rescore result of previous query
-	RESCORE_QUERY = "rescroe_query"
+	DisMax       = "dis_max"
+	MultiMatch   = "multi_match"
+	MatchPhrase  = "match_phrase" // 'phrase' search query
+	RESCORE      = "rescore"      // rescore result of previous query
+	RescoreQuery = "rescroe_query"
 	// query params
-	MINIMUM_SHOULD_MATCH = "minimum_should_match"
-	SLOP                 = "slop"        // in 'phrase' queries to describe proximity/word ordering
-	WINDOW_SIZE          = "window_size" // number of document from each shard
+	MinimumShouldMatch = "minimum_should_match"
+	SLOP               = "slop"        // in 'phrase' queries to describe proximity/word ordering
+	WindowSize         = "window_size" // number of document from each shard
 )
 
 /*
@@ -53,163 +53,170 @@ type Object struct {
 	kv   Dict
 }
 
-func (this *Object) Name() string {
-	return this.name
-}
-
-func (this *Object) KV() Dict {
-	return this.kv
+/*
+ * Name() returns the name of this query object
+ */
+func (obj *Object) Name() string {
+	return obj.name
 }
 
 /*
- * Create a new query object
+ * KV() returns the key-value store representing the body of this query
+ */
+func (obj *Object) KV() Dict {
+	return obj.kv
+}
+
+/*
+ * NewQuery Create a new query object
  */
 func NewQuery(name string) *Object {
 	return &Object{name: name, kv: make(Dict)}
 }
 
 /*
- * Create a new match query
+ * NewMatch Create a new match query
  */
 func NewMatch() *Object {
 	return NewQuery(MATCH)
 }
 
 /*
- * Create a new multi_match query
+ * NewMultiMatch Create a new multi_match query
  */
 func NewMultiMatch() *Object {
-	return NewQuery(MULTI_MATCH)
+	return NewQuery(MultiMatch)
 }
 
 /*
- * Create a `match_phrase` query to find words that are near each other
+ * NewMatchPhrase Create a `match_phrase` query to find words that are near each other
  */
 func NewMatchPhrase() *Object {
-	return NewQuery(MATCH_PHRASE)
+	return NewQuery(MatchPhrase)
 }
 
 /*
- * Create a `rescore` query
+ * NewRescore Create a `rescore` query
  */
 func NewRescore() *Object {
 	return NewQuery(RESCORE)
 }
 
 /*
- * Create a `rescore` query algorithm
+ * NewRescoreQuery Create a `rescore` query algorithm
  */
 func NewRescoreQuery() *Object {
-	return NewQuery(RESCORE_QUERY)
+	return NewQuery(RescoreQuery)
 }
 
 /*
- * for test purpose
+ * newQuery used for test purpose
  */
 func newQuery() *Object {
 	return &Object{name: "", kv: make(Dict)}
 }
 
 /*
- * Get a string representation of this object
+ * String get a string representation of this object
  */
-func (this *Object) String() string {
-	return String(this.KV())
+func (obj *Object) String() string {
+	return String(obj.KV())
 }
 
 /*
- * Create an Explain request, that will return explanation for why a document is returned by the query
+ * Explain create an Explaination request, that will return explanation for why a document is returned by the query
  */
-func (this *Elasticsearch) Explain(index, class string, id int64) *Search {
-	var url string = this.request(index, class, id, EXPLAIN)
-	return &Search{
-		client: this,
-		parser: &SearchResultParser{},
-		url:    url,
-		query:  make(Dict),
-	}
+func (client *Elasticsearch) Explain(index, class string, id int64) *Search {
+	url := client.request(index, class, id, EXPLAIN)
+	return newSearch(client, url)
 }
 
 /*
- * Create a Validate request
+ * Validate create a Validation request
  */
-func (this *Elasticsearch) Validate(index, class string, explain bool) *Search {
-	var url string = this.request(index, class, -1, VALIDATE) + "/query"
+func (client *Elasticsearch) Validate(index, class string, explain bool) *Search {
+	url := client.request(index, class, -1, VALIDATE) + "/query"
 	if explain {
 		url += "?" + EXPLAIN
 	}
-	return &Search{url: url, params: make(map[string]string), query: make(Dict)}
+	return newSearch(client, url)
 }
 
 /*
  * Create a Search request
  */
-func (this *Elasticsearch) Search(index, class string) *Search {
-	var url string = this.request(index, class, -1, SEARCH)
-	return &Search{url: url, params: make(map[string]string), query: make(Dict)}
+func (client *Elasticsearch) Search(index, class string) *Search {
+	url := client.request(index, class, -1, SEARCH)
+	return newSearch(client, url)
 }
 
 /*
  * Create a new Search API call
  */
-func newSearch() *Search {
-	return &Search{url: "", params: make(map[string]string), query: make(Dict)}
+func newSearch(client *Elasticsearch, url string) *Search {
+	return &Search{
+		client: client,
+		parser: &SearchResultParser{},
+		url:    url,
+		params: make(map[string]string),
+		query:  make(Dict),
+	}
 }
 
 /*
  * Add a url parameter/value, e.g. search_type (count, query_and_fetch, dfs_query_then_fetch/dfs_query_and_fetch, scan)
  */
-func (this *Search) AddParam(name, value string) *Search {
-	this.params[name] = value
-	return this
+func (search *Search) AddParam(name, value string) *Search {
+	search.params[name] = value
+	return search
 }
 
 /*
  * Pretiffy the response result
  */
-func (this *Search) Pretty() *Search {
-	this.AddParam("pretty", "")
-	return this
+func (search *Search) Pretty() *Search {
+	search.AddParam("pretty", "")
+	return search
 }
 
 /*
 * Add a query to this search request
  */
-func (this *Search) AddQuery(query Query) *Search {
-	this.query[query.Name()] = query.KV()
-	return this
+func (search *Search) AddQuery(query Query) *Search {
+	search.query[query.Name()] = query.KV()
+	return search
 }
 
 /*
  * Add to _source (i.e. specify another field that should be extracted)
  */
-func (this *Search) AddSource(source string) *Search {
+func (search *Search) AddSource(source string) *Search {
 	var sources []string
-	if this.query[SOURCE] == nil {
+	if search.query[SOURCE] == nil {
 		sources = []string{}
 	} else {
-		sources = this.query[SOURCE].([]string)
+		sources = search.query[SOURCE].([]string)
 	}
 	sources = append(sources, source)
-	this.query[SOURCE] = sources
-	return this
+	search.query[SOURCE] = sources
+	return search
 }
 
 /*
  * Add a query argument/value, e.g. size, from, etc.
  */
-func (this *Search) Add(argument string, value interface{}) *Search {
-	this.query[argument] = value
-	return this
+func (search *Search) Add(argument string, value interface{}) *Search {
+	search.query[argument] = value
+	return search
 }
 
 /*
  * Get a string representation of this Search API call
  */
-func (this *Search) String() string {
+func (search *Search) String() string {
 	body := ""
-	if len(this.query) > 0 {
-		body = String(this.query)
+	if len(search.query) > 0 {
+		body = String(search.query)
 	}
 	return body
 }
@@ -217,56 +224,56 @@ func (this *Search) String() string {
 /*
  * Construct the url of this Search API call
  */
-func (this *Search) urlString() string {
-	return urlString(this.url, this.params)
+func (search *Search) urlString() string {
+	return urlString(search.url, search.params)
 }
 
 /*
  * request mappings between the json fields and how Elasticsearch store them
  * GET /:index/:type/_search
  */
-func (this *Search) Get() {
+func (search *Search) Get() {
 	// construct the url
-	url := this.urlString()
+	url := search.urlString()
 	// construct the body
-	query := this.String()
+	query := search.String()
 
-	this.client.Get(url, query, this.parser)
+	search.client.Get(url, query, search.parser)
 }
 
 /*
  * Add a query argument/value
  */
-func (this *Object) Add(argument string, value interface{}) *Object {
-	this.kv[argument] = value
-	return this
+func (obj *Object) Add(argument string, value interface{}) *Object {
+	obj.kv[argument] = value
+	return obj
 }
 
 /*
  * specify multiple values to match
  */
-func (this *Object) AddMultiple(argument string, values ...interface{}) *Object {
-	this.kv[argument] = values
-	return this
+func (obj *Object) AddMultiple(argument string, values ...interface{}) *Object {
+	obj.kv[argument] = values
+	return obj
 }
 
 /*
  * Add multiple queries, under given `name`
  */
-func (this *Object) AddQueries(name string, queries ...Query) *Object {
+func (obj *Object) AddQueries(name string, queries ...Query) *Object {
 	for _, q := range queries {
 		parent := NewQuery(name)
 		parent.AddQuery(q)
-		this.AddQuery(parent)
+		obj.AddQuery(parent)
 	}
-	return this
+	return obj
 }
 
 /*
  * Add a sub query (e.g. a field query)
  */
-func (this *Object) AddQuery(query Query) *Object {
-	collection := this.kv[query.Name()]
+func (obj *Object) AddQuery(query Query) *Object {
+	collection := obj.kv[query.Name()]
 	// check if query.Name exists, otherwise transform the map to array
 	if collection == nil {
 		// at first the collection is a map
@@ -286,8 +293,8 @@ func (this *Object) AddQuery(query Query) *Object {
 		}
 		collection = append(collection.([]Dict), dict)
 	}
-	this.kv[query.Name()] = collection
-	return this
+	obj.kv[query.Name()] = collection
+	return obj
 }
 
 /*
@@ -298,11 +305,18 @@ type Bool struct {
 	kv   Dict
 }
 
-func (this *Bool) Name() string {
-	return this.name
+/*
+ * Name() returns the name of this 'bool' query
+ */
+func (b *Bool) Name() string {
+	return b.name
 }
-func (this *Bool) KV() Dict {
-	return this.kv
+
+/*
+ * KV() returns the key-value store representing the body of this 'bool' query
+ */
+func (b *Bool) KV() Dict {
+	return b.kv
 }
 
 /*
@@ -316,40 +330,40 @@ func NewBool() *Bool {
 /*
  * Add a 'must' clause to this 'bool' clause
  */
-func (this *Bool) AddMust(query Query) *Bool {
-	this.add("must", query)
-	return this
+func (b *Bool) AddMust(query Query) *Bool {
+	b.add("must", query)
+	return b
 }
 
 /*
  * Add a 'must_not' clause to this 'bool' clause
  */
-func (this *Bool) AddMustNot(query Query) *Bool {
-	this.add("must_not", query)
-	return this
+func (b *Bool) AddMustNot(query Query) *Bool {
+	b.add("must_not", query)
+	return b
 }
 
 /*
  * Add a 'should' clause to this 'bool' clause
  */
-func (this *Bool) AddShould(query Query) *Bool {
-	this.add("should", query)
-	return this
+func (b *Bool) AddShould(query Query) *Bool {
+	b.add("should", query)
+	return b
 }
 
 /*
  * Add a parameter to this `bool` query
  */
-func (this *Bool) Add(name string, value interface{}) *Bool {
-	this.kv[name] = value
-	return this
+func (b *Bool) Add(name string, value interface{}) *Bool {
+	b.kv[name] = value
+	return b
 }
 
 /*
  * add a clause
  */
-func (this *Bool) add(key string, query Query) {
-	collection := this.kv[key]
+func (b *Bool) add(key string, query Query) {
+	collection := b.kv[key]
 	// check if query.Name exists, otherwise transform the map to array
 	if collection == nil {
 		// at first the collection is a map
@@ -371,7 +385,7 @@ func (this *Bool) add(key string, query Query) {
 		}
 		collection = append(collection.([]Dict), dict)
 	}
-	this.kv[key] = collection
+	b.kv[key] = collection
 }
 
 /*

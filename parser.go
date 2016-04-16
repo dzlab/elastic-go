@@ -20,7 +20,7 @@ type SearchResultParser struct{}
 /*
  * Parse the given data into a search result structure
  */
-func (this *SearchResultParser) Parse(data []byte) interface{} {
+func (parser *SearchResultParser) Parse(data []byte) interface{} {
 	var result interface{}
 	search := SearchResult{}
 	if err := json.Unmarshal(data, &search); err == nil {

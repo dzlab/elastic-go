@@ -21,16 +21,16 @@ type Elasticsearch struct {
 /*
  * Build the url of an API request call
  */
-func (this *Elasticsearch) request(index, class string, id int64, request string) string {
+func (client *Elasticsearch) request(index, class string, id int64, request string) string {
 	var url string
 	if index == "" {
-		url = fmt.Sprintf("http://%s/_%s", this.Addr, request)
+		url = fmt.Sprintf("http://%s/_%s", client.Addr, request)
 	} else if class == "" {
-		url = fmt.Sprintf("http://%s/%s/_%s", this.Addr, index, request)
+		url = fmt.Sprintf("http://%s/%s/_%s", client.Addr, index, request)
 	} else if id < 0 {
-		url = fmt.Sprintf("http://%s/%s/%s/_%s", this.Addr, index, class, request)
+		url = fmt.Sprintf("http://%s/%s/%s/_%s", client.Addr, index, class, request)
 	} else {
-		url = fmt.Sprintf("http://%s/%s/%s/%d/_%s", this.Addr, index, class, id, request)
+		url = fmt.Sprintf("http://%s/%s/%s/%d/_%s", client.Addr, index, class, id, request)
 	}
 	return url
 }
@@ -38,7 +38,7 @@ func (this *Elasticsearch) request(index, class string, id int64, request string
 /*
  * Execute a Get request and parse the response
  */
-func (this *Elasticsearch) Get(url, query string, parser Parser) (interface{}, error) {
+func (client *Elasticsearch) Get(url, query string, parser Parser) (interface{}, error) {
 	var body io.Reader
 	if query != "" {
 		body = bytes.NewReader([]byte(query))

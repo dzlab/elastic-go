@@ -13,15 +13,15 @@ const (
 	SETTINGS = "settings"
 	ALIAS    = "_alias"
 	// settings params
-	SHARDS_NB        = "number_of_shards"
-	REPLICAS_NB      = "number_of_replicas"
-	REFRESH_INTERVAL = "refresh_interval"
+	ShardsNumber    = "number_of_shards"
+	ReplicasNumber  = "number_of_replicas"
+	RefreshInterval = "refresh_interval"
 	// analyzer params
-	TOKENIZER        = "tokenizer"        //
-	FILTER           = "filter"           //
-	MIN_SHINGLE_SIZE = "min_shingle_size" //
-	MAX_SHINGLE_SIZE = "max_shingle_size" //
-	OUTPUT_UNIGRAMS  = "output_unigrams"  //
+	TOKENIZER      = "tokenizer"        //
+	FILTER         = "filter"           //
+	MinShingleSize = "min_shingle_size" //
+	MaxShingleSize = "max_shingle_size" //
+	OutputUnigrams = "output_unigrams"  //
 )
 
 type Index struct {
@@ -32,35 +32,35 @@ type Index struct {
 /*
  * Return a JSON representation of the body of this Index
  */
-func (this *Index) String() string {
-	result, err := json.Marshal(this.dict)
+func (idx *Index) String() string {
+	result, err := json.Marshal(idx.dict)
 	if err != nil {
 		log.Println(err)
 	}
 	return string(result)
 }
 
-func (this *Elasticsearch) Index(index string) *Index {
-	url := fmt.Sprintf("http://%s/%s", this.Addr, index)
+func (client *Elasticsearch) Index(index string) *Index {
+	url := fmt.Sprintf("http://%s/%s", client.Addr, index)
 	return &Index{url: url, dict: make(Dict)}
 }
 
 /*
  * add a setting parameter
  */
-func (this *Index) Settings(settings Dict) {
-	this.dict[SETTINGS] = settings
+func (idx *Index) Settings(settings Dict) {
+	idx.dict[SETTINGS] = settings
 }
 
 /*
  * Set the mapping parameter
  */
-func (this *Index) Mappings(doctype string, mapping *Mapping) *Index {
-	if this.dict[MAPPINGS] == nil {
-		this.dict[MAPPINGS] = make(Dict)
+func (idx *Index) Mappings(doctype string, mapping *Mapping) *Index {
+	if idx.dict[MAPPINGS] == nil {
+		idx.dict[MAPPINGS] = make(Dict)
 	}
-	this.dict[MAPPINGS].(Dict)[doctype] = mapping.query
-	return this
+	idx.dict[MAPPINGS].(Dict)[doctype] = mapping.query
+	return idx
 }
 
 /*
@@ -73,44 +73,44 @@ func newIndex() *Index {
 /*
  * Define an alias for this index
  */
-func (this *Index) SetAlias(alias string) *Index {
-	this.url += fmt.Sprintf("/%s/%s", ALIAS, alias)
-	return this
+func (idx *Index) SetAlias(alias string) *Index {
+	idx.url += fmt.Sprintf("/%s/%s", ALIAS, alias)
+	return idx
 }
 
 /*
  * Add a key-value settings
  */
-func (this *Index) AddSetting(name string, value interface{}) *Index {
-	if this.dict[SETTINGS] == nil {
-		this.dict[SETTINGS] = make(Dict)
+func (idx *Index) AddSetting(name string, value interface{}) *Index {
+	if idx.dict[SETTINGS] == nil {
+		idx.dict[SETTINGS] = make(Dict)
 	}
-	this.dict[SETTINGS].(Dict)[name] = value
-	return this
+	idx.dict[SETTINGS].(Dict)[name] = value
+	return idx
 }
 
 /*
  * Set the number of shards
  */
-func (this *Index) SetShardsNb(number int) *Index {
-	this.AddSetting(SHARDS_NB, number)
-	return this
+func (idx *Index) SetShardsNb(number int) *Index {
+	idx.AddSetting(ShardsNumber, number)
+	return idx
 }
 
 /*
  * Set the number of shards
  */
-func (this *Index) SetReplicasNb(number int) *Index {
-	this.AddSetting(REPLICAS_NB, number)
-	return this
+func (idx *Index) SetReplicasNb(number int) *Index {
+	idx.AddSetting(ReplicasNumber, number)
+	return idx
 }
 
 /*
  * Set the refresh interval
  */
-func (this *Index) SetRefreshInterval(interval string) *Index {
-	this.AddSetting(REFRESH_INTERVAL, interval)
-	return this
+func (idx *Index) SetRefreshInterval(interval string) *Index {
+	idx.AddSetting(RefreshInterval, interval)
+	return idx
 }
 
 /*
@@ -131,72 +131,72 @@ func NewAnalyzer(name string) *Analyzer {
 /*
  * Return a JSON string representation of this analyzer
  */
-func (this *Analyzer) String() string {
+func (analyzer *Analyzer) String() string {
 	dict := make(Dict)
-	dict[this.name] = this.kv
+	dict[analyzer.name] = analyzer.kv
 	return String(dict)
 }
 
 /*
  * Add an anlyzer to the index settings
  */
-func (this *Index) AddAnalyzer(analyzer *Analyzer) *Index {
+func (idx *Index) AddAnalyzer(analyzer *Analyzer) *Index {
 	// if no "settings" create one
-	if this.dict[SETTINGS] == nil {
-		this.dict[SETTINGS] = make(Dict)
+	if idx.dict[SETTINGS] == nil {
+		idx.dict[SETTINGS] = make(Dict)
 	}
 	// if no "settings.analysis" create one
-	if this.dict[SETTINGS].(Dict)[ANALYSIS] == nil {
-		this.dict[SETTINGS].(Dict)[ANALYSIS] = make(Dict) //map[string]*Analyzer)
+	if idx.dict[SETTINGS].(Dict)[ANALYSIS] == nil {
+		idx.dict[SETTINGS].(Dict)[ANALYSIS] = make(Dict) //map[string]*Analyzer)
 	}
 	// insert the analyser ('name' and 'kv' attributes are taken separately)
-	settings := this.dict[SETTINGS].(Dict)
+	settings := idx.dict[SETTINGS].(Dict)
 	analysis := settings[ANALYSIS].(Dict) //map[string]*Analyzer)
 	analysis[analyzer.name] = analyzer.kv
-	this.dict[SETTINGS].(Dict)[ANALYSIS] = analysis
-	return this
+	idx.dict[SETTINGS].(Dict)[ANALYSIS] = analysis
+	return idx
 }
 
 /*
  * add an attribute to analyzer definition
  */
-func (this *Analyzer) Add1(key1, key2 string, value interface{}) *Analyzer {
-	if len(this.kv[key1]) == 0 {
-		this.kv[key1] = make(Dict)
+func (analyzer *Analyzer) Add1(key1, key2 string, value interface{}) *Analyzer {
+	if len(analyzer.kv[key1]) == 0 {
+		analyzer.kv[key1] = make(Dict)
 	}
-	this.kv[key1][key2] = value
-	return this
+	analyzer.kv[key1][key2] = value
+	return analyzer
 }
 
 /*
  * add a dictionary of attributes to analyzer definition
  */
-func (this *Analyzer) Add2(name string, value Dict) *Analyzer {
-	if len(this.kv[name]) == 0 {
-		this.kv[name] = make(Dict)
+func (analyzer *Analyzer) Add2(name string, value Dict) *Analyzer {
+	if len(analyzer.kv[name]) == 0 {
+		analyzer.kv[name] = make(Dict)
 	}
 	for k, v := range value {
-		this.kv[name][k] = v
+		analyzer.kv[name][k] = v
 	}
-	return this
+	return analyzer
 }
 
 /*
  * Pretify elasticsearch result
  */
-func (this *Index) Pretty() *Index {
-	this.url += "?pretty"
-	return this
+func (analyzer *Index) Pretty() *Index {
+	analyzer.url += "?pretty"
+	return analyzer
 }
 
 /*
  * Create an index
  * PUT /:index
  */
-func (this *Index) Put() {
-	query := String(this.dict)
-	log.Println("PUT", this.url, query)
-	reader, err := exec("PUT", this.url, bytes.NewReader([]byte(query)))
+func (analyzer *Index) Put() {
+	query := String(analyzer.dict)
+	log.Println("PUT", analyzer.url, query)
+	reader, err := exec("PUT", analyzer.url, bytes.NewReader([]byte(query)))
 	if err != nil {
 		log.Println(err)
 		return
@@ -211,9 +211,9 @@ func (this *Index) Put() {
  * delete an index
  * DELETE /:index
  */
-func (this *Index) Delete() {
-	log.Println("DELETE", this.url)
-	reader, err := exec("DELETE", this.url, nil)
+func (idx *Index) Delete() {
+	log.Println("DELETE", idx.url)
+	reader, err := exec("DELETE", idx.url, nil)
 	if err != nil {
 		log.Println(err)
 		return

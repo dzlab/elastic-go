@@ -10,7 +10,7 @@ func TestMappings(t *testing.T) {
 	actual := []string{
 		NewMapping("").AddProperty("tag", "type", "string").AddProperty("tag", "index", "not_analyzed").String(),
 		NewMapping("").AddDocumentType(NewDefaultType().AddTemplate(NewAllTemplate().AddProperty("enabled", false))).String(),
-		NewMapping("").AddDocumentType(NewDocType("my_type").AddDynamicTemplate(NewTemplate("es").AddMatch("_es").AddProperty(MATCH_MAPPING_TYPE, "string").AddMappingProperty("type", "string").AddMappingProperty("analyzer", "spanish"))).String(),
+		NewMapping("").AddDocumentType(NewDocType("my_type").AddDynamicTemplate(NewTemplate("es").AddMatch("_es").AddProperty(MatchMappingType, "string").AddMappingProperty("type", "string").AddMappingProperty("analyzer", "spanish"))).String(),
 	}
 	// expected result
 	expected := []string{
@@ -26,7 +26,7 @@ func TestMappings(t *testing.T) {
 func TestDocType(t *testing.T) {
 	actual := []string{
 		NewDefaultType().AddTemplate(NewAllTemplate().AddProperty("enabled", false)).String(),
-		NewDocType("my_type").AddDynamicTemplate(NewTemplate("es").AddMatch("_es").AddProperty(MATCH_MAPPING_TYPE, "string").AddMappingProperty("type", "string").AddMappingProperty("analyzer", "spanish")).String(),
+		NewDocType("my_type").AddDynamicTemplate(NewTemplate("es").AddMatch("_es").AddProperty(MatchMappingType, "string").AddMappingProperty("type", "string").AddMappingProperty("analyzer", "spanish")).String(),
 		NewDocType("my_type").AddProperty("date_detection", false).String(),
 	}
 	expected := []string{
@@ -41,7 +41,7 @@ func TestDocType(t *testing.T) {
 func TestTemplates(t *testing.T) {
 	actual := []string{
 		NewAllTemplate().AddProperty("enabled", false).String(),
-		NewTemplate("es").AddMatch("_es").AddProperty(MATCH_MAPPING_TYPE, "string").AddMappingProperty("type", "string").AddMappingProperty("analyzer", "spanish").String(),
+		NewTemplate("es").AddMatch("_es").AddProperty(MatchMappingType, "string").AddMappingProperty("type", "string").AddMappingProperty("analyzer", "spanish").String(),
 	}
 	expected := []string{
 		`{"_all":{"enabled":false}}`, // disable '_all' field

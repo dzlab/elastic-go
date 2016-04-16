@@ -21,8 +21,8 @@ type Alias struct {
 /*
  * Return a JSOn representation of the body of this Alias
  */
-func (this *Alias) String() string {
-	result, err := json.Marshal(this.dict)
+func (alias *Alias) String() string {
+	result, err := json.Marshal(alias.dict)
 	if err != nil {
 		log.Println(err)
 	}
@@ -36,32 +36,32 @@ func newAlias() *Alias {
 	return &Alias{url: "", dict: make(Dict)}
 }
 
-func (this *Elasticsearch) Alias() *Alias {
-	url := fmt.Sprintf("http://%s/%s", this.Addr, ALIASES)
+func (client *Elasticsearch) Alias() *Alias {
+	url := fmt.Sprintf("http://%s/%s", client.Addr, ALIASES)
 	return &Alias{url: url, dict: make(Dict)}
 }
 
 /*
  * Add an Alias operation (e.g. remove index's alias)
  */
-func (this *Alias) AddAction(operation, index, alias string) *Alias {
-	if this.dict[ACTIONS] == nil {
-		this.dict[ACTIONS] = []Dict{}
+func (alias *Alias) AddAction(operation, index, name string) *Alias {
+	if alias.dict[ACTIONS] == nil {
+		alias.dict[ACTIONS] = []Dict{}
 	}
 	action := make(Dict)
-	action[operation] = Dict{"index": index, "alias": alias}
-	this.dict[ACTIONS] = append(this.dict[ACTIONS].([]Dict), action)
-	return this
+	action[operation] = Dict{"index": index, "alias": name}
+	alias.dict[ACTIONS] = append(alias.dict[ACTIONS].([]Dict), action)
+	return alias
 }
 
 /*
  * Submit an Aliases POST operation
  * POST /:index
  */
-func (this *Alias) Post() {
-	log.Println("POST", this.url)
-	body := String(this.dict)
-	reader, err := exec("POST", this.url, bytes.NewReader([]byte(body)))
+func (alias *Alias) Post() {
+	log.Println("POST", alias.url)
+	body := String(alias.dict)
+	reader, err := exec("POST", alias.url, bytes.NewReader([]byte(body)))
 	if err != nil {
 		log.Println(err)
 		return
