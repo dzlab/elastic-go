@@ -2,6 +2,7 @@ package elastic
 
 import ()
 
+// Dict a dictionary with string keys and values of any type
 type Dict map[string]interface{}
 
 // fields of a Search API call
@@ -34,9 +35,7 @@ const (
 	WindowSize         = "window_size"    // number of document from each shard
 )
 
-/*
- * a request representing a search
- */
+// Search a request representing a search
 type Search struct {
 	client *Elasticsearch
 	parser *SearchResultParser
@@ -45,100 +44,75 @@ type Search struct {
 	query  Dict
 }
 
+// Query defines an interfece of an object from an Elasticsearch query
 type Query interface {
 	Name() string
 	KV() Dict
 }
 
-/*
- * General purpose query
- */
+// Object a general purpose query
 type Object struct {
 	name string
 	kv   Dict
 }
 
-/*
- * Name() returns the name of this query object
- */
+// Name returns the name of this query object
 func (obj *Object) Name() string {
 	return obj.name
 }
 
-/*
- * KV() returns the key-value store representing the body of this query
- */
+// KV returns the key-value store representing the body of this query
 func (obj *Object) KV() Dict {
 	return obj.kv
 }
 
-/*
- * NewQuery Create a new query object
- */
+// NewQuery Create a new query object
 func NewQuery(name string) *Object {
 	return &Object{name: name, kv: make(Dict)}
 }
 
-/*
- * NewMatch Create a new match query
- */
+// NewMatch Create a new match query
 func NewMatch() *Object {
 	return NewQuery(MATCH)
 }
 
-/*
- * NewMultiMatch Create a new multi_match query
- */
+// NewMultiMatch Create a new multi_match query
 func NewMultiMatch() *Object {
 	return NewQuery(MultiMatch)
 }
 
-/*
- * NewMatchPhrase Create a `match_phrase` query to find words that are near each other
- */
+// NewMatchPhrase Create a `match_phrase` query to find words that are near each other
 func NewMatchPhrase() *Object {
 	return NewQuery(MatchPhrase)
 }
 
-/*
- * NewRescore Create a `rescore` query
- */
+// NewRescore Create a `rescore` query
 func NewRescore() *Object {
 	return NewQuery(RESCORE)
 }
 
-/*
- * NewRescoreQuery Create a `rescore` query algorithm
- */
+// NewRescoreQuery Create a `rescore` query algorithm
 func NewRescoreQuery() *Object {
 	return NewQuery(RescoreQuery)
 }
 
-/*
- * newQuery used for test purpose
- */
+// newQuery used for test purpose
 func newQuery() *Object {
 	return &Object{name: "", kv: make(Dict)}
 }
 
-/*
- * String get a string representation of this object
- */
+// String returns a string representation of this object
 func (obj *Object) String() string {
 	return String(obj.KV())
 }
 
-/*
- * Explain create an Explaination request, that will return explanation for why a document is returned by the query
- */
+// Explain creates an Explaination request, that will return explanation for why a document is returned by the query
 func (client *Elasticsearch) Explain(index, class string, id int64) *Search {
 	url := client.request(index, class, id, EXPLAIN)
 	return newSearch(client, url)
 }
 
-/*
- * Validate create a Validation request
- */
+// Validate creates a Validation request
 func (client *Elasticsearch) Validate(index, class string, explain bool) *Search {
 	url := client.request(index, class, -1, VALIDATE) + "/query"
 	if explain {
@@ -147,17 +121,13 @@ func (client *Elasticsearch) Validate(index, class string, explain bool) *Search
 	return newSearch(client, url)
 }
 
-/*
- * Create a Search request
- */
+// Search creates a Search request
 func (client *Elasticsearch) Search(index, class string) *Search {
 	url := client.request(index, class, -1, SEARCH)
 	return newSearch(client, url)
 }
 
-/*
- * Create a new Search API call
- */
+// newSearch creates a new Search API call
 func newSearch(client *Elasticsearch, url string) *Search {
 	return &Search{
 		client: client,
@@ -168,33 +138,25 @@ func newSearch(client *Elasticsearch, url string) *Search {
 	}
 }
 
-/*
- * Add a url parameter/value, e.g. search_type (count, query_and_fetch, dfs_query_then_fetch/dfs_query_and_fetch, scan)
- */
+// AddParam adds a url parameter/value, e.g. search_type (count, query_and_fetch, dfs_query_then_fetch/dfs_query_and_fetch, scan)
 func (search *Search) AddParam(name, value string) *Search {
 	search.params[name] = value
 	return search
 }
 
-/*
- * Pretiffy the response result
- */
+// Pretty pretiffies the response result
 func (search *Search) Pretty() *Search {
 	search.AddParam("pretty", "")
 	return search
 }
 
-/*
-* Add a query to this search request
- */
+// AddQuery adds a query to this search request
 func (search *Search) AddQuery(query Query) *Search {
 	search.query[query.Name()] = query.KV()
 	return search
 }
 
-/*
- * Add to _source (i.e. specify another field that should be extracted)
- */
+// AddSource adds to _source (i.e. specify another field that should be extracted)
 func (search *Search) AddSource(source string) *Search {
 	var sources []string
 	if search.query[SOURCE] == nil {
@@ -207,17 +169,13 @@ func (search *Search) AddSource(source string) *Search {
 	return search
 }
 
-/*
- * Add a query argument/value, e.g. size, from, etc.
- */
+// Add adds a query argument/value, e.g. size, from, etc.
 func (search *Search) Add(argument string, value interface{}) *Search {
 	search.query[argument] = value
 	return search
 }
 
-/*
- * Get a string representation of this Search API call
- */
+// String returns a string representation of this Search API call
 func (search *Search) String() string {
 	body := ""
 	if len(search.query) > 0 {
@@ -226,17 +184,13 @@ func (search *Search) String() string {
 	return body
 }
 
-/*
- * Construct the url of this Search API call
- */
+// urlString constructs the url of this Search API call
 func (search *Search) urlString() string {
 	return urlString(search.url, search.params)
 }
 
-/*
- * request mappings between the json fields and how Elasticsearch store them
- * GET /:index/:type/_search
- */
+// Get submits request mappings between the json fields and how Elasticsearch store them
+// GET /:index/:type/_search
 func (search *Search) Get() {
 	// construct the url
 	url := search.urlString()
@@ -246,25 +200,19 @@ func (search *Search) Get() {
 	search.client.Execute("GET", url, query, search.parser)
 }
 
-/*
- * Add a query argument/value
- */
+// Add adds a query argument/value
 func (obj *Object) Add(argument string, value interface{}) *Object {
 	obj.kv[argument] = value
 	return obj
 }
 
-/*
- * specify multiple values to match
- */
+// AddMultiple specify multiple values to match
 func (obj *Object) AddMultiple(argument string, values ...interface{}) *Object {
 	obj.kv[argument] = values
 	return obj
 }
 
-/*
- * Add multiple queries, under given `name`
- */
+// AddQueries adds multiple queries, under given `name`
 func (obj *Object) AddQueries(name string, queries ...Query) *Object {
 	for _, q := range queries {
 		parent := NewQuery(name)
@@ -274,9 +222,7 @@ func (obj *Object) AddQueries(name string, queries ...Query) *Object {
 	return obj
 }
 
-/*
- * Add a sub query (e.g. a field query)
- */
+// AddQuery adds a sub query (e.g. a field query)
 func (obj *Object) AddQuery(query Query) *Object {
 	collection := obj.kv[query.Name()]
 	// check if query.Name exists, otherwise transform the map to array
@@ -302,71 +248,53 @@ func (obj *Object) AddQuery(query Query) *Object {
 	return obj
 }
 
-/*
- * Boolean clause, it is a complex clause that allows to combine other clauses as 'must' match, 'must_not' match, 'should' match.
- */
+// Bool represents a boolean clause, it is a complex clause that allows to combine other clauses as 'must' match, 'must_not' match, 'should' match.
 type Bool struct {
 	name string
 	kv   Dict
 }
 
-/*
- * Name() returns the name of this 'bool' query
- */
+// Name returns the name of this 'bool' query
 func (b *Bool) Name() string {
 	return b.name
 }
 
-/*
- * KV() returns the key-value store representing the body of this 'bool' query
- */
+// KV returns the key-value store representing the body of this 'bool' query
 func (b *Bool) KV() Dict {
 	return b.kv
 }
 
-/*
- * Create a new 'bool' clause
- */
+// NewBool creates a new 'bool' clause
 func NewBool() *Bool {
 	kv := make(Dict)
 	return &Bool{name: "bool", kv: kv}
 }
 
-/*
- * Add a 'must' clause to this 'bool' clause
- */
+// AddMust adds a 'must' clause to this 'bool' clause
 func (b *Bool) AddMust(query Query) *Bool {
 	b.add("must", query)
 	return b
 }
 
-/*
- * Add a 'must_not' clause to this 'bool' clause
- */
+// AddMustNot adds a 'must_not' clause to this 'bool' clause
 func (b *Bool) AddMustNot(query Query) *Bool {
 	b.add("must_not", query)
 	return b
 }
 
-/*
- * Add a 'should' clause to this 'bool' clause
- */
+// AddShould adds a 'should' clause to this 'bool' clause
 func (b *Bool) AddShould(query Query) *Bool {
 	b.add("should", query)
 	return b
 }
 
-/*
- * Add a parameter to this `bool` query
- */
+// Add adds a parameter to this `bool` query
 func (b *Bool) Add(name string, value interface{}) *Bool {
 	b.kv[name] = value
 	return b
 }
 
-/*
- * add a clause
- */
+// add adds a clause
 func (b *Bool) add(key string, query Query) {
 	collection := b.kv[key]
 	// check if query.Name exists, otherwise transform the map to array
@@ -393,30 +321,22 @@ func (b *Bool) add(key string, query Query) {
 	b.kv[key] = collection
 }
 
-/*
- * Create a new 'terms' filter, it is like 'term' but can match multiple values
- */
+// NewTerms creates a new 'terms' filter, it is like 'term' but can match multiple values
 func NewTerms() *Object {
 	return NewQuery("terms")
 }
 
-/*
- * Create a new 'term' filter
- */
+// NewTerm creates a new 'term' filter
 func NewTerm() *Object {
 	return NewQuery("term")
 }
 
-/*
- * Create a new `exists` filter.
- */
+// NewExists creates a new `exists` filter.
 func NewExists() *Object {
 	return NewQuery("exists")
 }
 
-/*
- * Create a new `missing` filter (the inverse of `exists`)
- */
+// NewMissing creates a new `missing` filter (the inverse of `exists`)
 func NewMissing() *Object {
 	return NewQuery("missing")
 }
