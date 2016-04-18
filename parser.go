@@ -5,21 +5,15 @@ import (
 	"log"
 )
 
-/*
- * An interface for parsing reponses
- */
+// Parser an interface for parsing reponses
 type Parser interface {
 	Parse(data []byte) interface{}
 }
 
-/*
- * A parser for search result
- */
+// SearchResultParser a parser for search result
 type SearchResultParser struct{}
 
-/*
- * Parse the given data into a search result structure
- */
+// Parse rerturns a parsed search result structure from the given data
 func (parser *SearchResultParser) Parse(data []byte) interface{} {
 	var result interface{}
 	search := SearchResult{}
@@ -44,14 +38,10 @@ func (parser *SearchResultParser) Parse(data []byte) interface{} {
 	return result
 }
 
-/*
- * A parser for index result
- */
+// IndexResultParser a parser for index result
 type IndexResultParser struct{}
 
-/*
- * Parse the given data into an index result structure
- */
+// Parse returns an index result structure from the given data
 func (parser *IndexResultParser) Parse(data []byte) interface{} {
 	var result interface{}
 	success := Success{}
@@ -63,14 +53,10 @@ func (parser *IndexResultParser) Parse(data []byte) interface{} {
 	return result
 }
 
-/*
- * A parser for mapping result
- */
+// MappingResultParser a parser for mapping result
 type MappingResultParser struct{}
 
-/*
- * Parse the given data into an index result structure
- */
+// Parse returns an index result structure from the given data
 func (parser *MappingResultParser) Parse(data []byte) interface{} {
 	var result interface{}
 	/*index := IndexResult{}
@@ -83,14 +69,10 @@ func (parser *MappingResultParser) Parse(data []byte) interface{} {
 	return result
 }
 
-/*
- * A parser for mapping result
- */
+// InsertResultParser a parser for mapping result
 type InsertResultParser struct{}
 
-/*
- * Parse the given data into an index result structure
- */
+// Parse returns an index result structure from the given data
 func (parser *InsertResultParser) Parse(data []byte) interface{} {
 	var result interface{}
 	insert := InsertResult{}
@@ -108,14 +90,10 @@ func (parser *InsertResultParser) Parse(data []byte) interface{} {
 	return result
 }
 
-/*
- * A parser for analyze result
- */
+// AnalyzeResultParser a parser for analyze result
 type AnalyzeResultParser struct{}
 
-/*
- * Parse the given data into an analyze result structure
- */
+// Parse returns an analyze result structure from the given data
 func (parser *AnalyzeResultParser) Parse(data []byte) interface{} {
 	var result interface{}
 	analyze := AnalyzeResult{}
@@ -133,14 +111,10 @@ func (parser *AnalyzeResultParser) Parse(data []byte) interface{} {
 	return result
 }
 
-/*
- * A parser for analyze result
- */
+// BulkResultParser a parser for analyze result
 type BulkResultParser struct{}
 
-/*
- * Parse the given data into an analyze result structure
- */
+// Parse returns an analyze result structure from the given data
 func (parser *BulkResultParser) Parse(data []byte) interface{} {
 	var result interface{}
 	bulk := BulkResult{}
