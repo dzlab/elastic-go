@@ -22,6 +22,7 @@ const (
 	OutputUnigrams = "output_unigrams"  //
 )
 
+// Index a strcuture to hold a query for building/deleting indexes
 type Index struct {
 	client *Elasticsearch
 	parser *IndexResultParser
@@ -29,9 +30,7 @@ type Index struct {
 	dict   Dict
 }
 
-/*
- * Return a JSON representation of the body of this Index
- */
+// String returns a JSON representation of the body of this Index
 func (idx *Index) String() string {
 	result, err := json.Marshal(idx.dict)
 	if err != nil {
@@ -40,6 +39,7 @@ func (idx *Index) String() string {
 	return string(result)
 }
 
+// Index returns a query for managing indexes
 func (client *Elasticsearch) Index(index string) *Index {
 	url := fmt.Sprintf("http://%s/%s", client.Addr, index)
 	return &Index{
@@ -50,16 +50,12 @@ func (client *Elasticsearch) Index(index string) *Index {
 	}
 }
 
-/*
- * add a setting parameter
- */
+// Settings add a setting parameter to the Index query body
 func (idx *Index) Settings(settings Dict) {
 	idx.dict[SETTINGS] = settings
 }
 
-/*
- * Set the mapping parameter
- */
+// Mappings set the mapping parameter
 func (idx *Index) Mappings(doctype string, mapping *Mapping) *Index {
 	if idx.dict[MAPPINGS] == nil {
 		idx.dict[MAPPINGS] = make(Dict)
@@ -68,24 +64,18 @@ func (idx *Index) Mappings(doctype string, mapping *Mapping) *Index {
 	return idx
 }
 
-/*
- * Create new index settings
- */
+// newIndex creates new index settings
 func newIndex() *Index {
 	return &Index{dict: make(Dict)}
 }
 
-/*
- * Define an alias for this index
- */
+// SetAlias defines an alias for this index
 func (idx *Index) SetAlias(alias string) *Index {
 	idx.url += fmt.Sprintf("/%s/%s", ALIAS, alias)
 	return idx
 }
 
-/*
- * Add a key-value settings
- */
+// AddSetting adds a key-value settings
 func (idx *Index) AddSetting(name string, value interface{}) *Index {
 	if idx.dict[SETTINGS] == nil {
 		idx.dict[SETTINGS] = make(Dict)
@@ -94,57 +84,43 @@ func (idx *Index) AddSetting(name string, value interface{}) *Index {
 	return idx
 }
 
-/*
- * Set the number of shards
- */
+// SetShardsNb sets the number of shards
 func (idx *Index) SetShardsNb(number int) *Index {
 	idx.AddSetting(ShardsNumber, number)
 	return idx
 }
 
-/*
- * Set the number of shards
- */
+// SetReplicasNb sets the number of shards
 func (idx *Index) SetReplicasNb(number int) *Index {
 	idx.AddSetting(ReplicasNumber, number)
 	return idx
 }
 
-/*
- * Set the refresh interval
- */
+// SetRefreshInterval sets the refresh interval
 func (idx *Index) SetRefreshInterval(interval string) *Index {
 	idx.AddSetting(RefreshInterval, interval)
 	return idx
 }
 
-/*
- * Analyzer/Filter
- */
+// Analyzer a structure for representing Analyzers and Filters
 type Analyzer struct {
 	name string
 	kv   map[string]Dict
 }
 
-/*
- * Create a new analyzer
- */
+// NewAnalyzer creates a new analyzer
 func NewAnalyzer(name string) *Analyzer {
 	return &Analyzer{name: name, kv: make(map[string]Dict)}
 }
 
-/*
- * Return a JSON string representation of this analyzer
- */
+// String returns a JSON string representation of this analyzer
 func (analyzer *Analyzer) String() string {
 	dict := make(Dict)
 	dict[analyzer.name] = analyzer.kv
 	return String(dict)
 }
 
-/*
- * Add an anlyzer to the index settings
- */
+// AddAnalyzer adds an anlyzer to the index settings
 func (idx *Index) AddAnalyzer(analyzer *Analyzer) *Index {
 	// if no "settings" create one
 	if idx.dict[SETTINGS] == nil {
@@ -162,9 +138,7 @@ func (idx *Index) AddAnalyzer(analyzer *Analyzer) *Index {
 	return idx
 }
 
-/*
- * add an attribute to analyzer definition
- */
+// Add1 adds an attribute to analyzer definition
 func (analyzer *Analyzer) Add1(key1, key2 string, value interface{}) *Analyzer {
 	if len(analyzer.kv[key1]) == 0 {
 		analyzer.kv[key1] = make(Dict)
@@ -173,9 +147,7 @@ func (analyzer *Analyzer) Add1(key1, key2 string, value interface{}) *Analyzer {
 	return analyzer
 }
 
-/*
- * add a dictionary of attributes to analyzer definition
- */
+// Add2 adds a dictionary of attributes to analyzer definition
 func (analyzer *Analyzer) Add2(name string, value Dict) *Analyzer {
 	if len(analyzer.kv[name]) == 0 {
 		analyzer.kv[name] = make(Dict)
@@ -186,18 +158,14 @@ func (analyzer *Analyzer) Add2(name string, value Dict) *Analyzer {
 	return analyzer
 }
 
-/*
- * Pretify elasticsearch result
- */
+// Pretty adds a parameter to the query url to pretify elasticsearch result
 func (idx *Index) Pretty() *Index {
 	idx.url += "?pretty"
 	return idx
 }
 
-/*
- * Create an index
- * PUT /:index
- */
+// Put submits to elasticsearch the query to create an index
+// PUT /:index
 func (idx *Index) Put() {
 	url := idx.url
 	query := String(idx.dict)
@@ -205,10 +173,8 @@ func (idx *Index) Put() {
 	idx.client.Execute("PUT", url, query, idx.parser)
 }
 
-/*
- * delete an index
- * DELETE /:index
- */
+// Delete submits to elasticsearch a query to delete an index
+// DELETE /:index
 func (idx *Index) Delete() {
 	idx.client.Execute("DELETE", idx.url, "", idx.parser)
 }
