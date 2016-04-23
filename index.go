@@ -7,19 +7,28 @@ import (
 )
 
 const (
+	// ANALYSIS constant name of analysis part of Index API query
 	ANALYSIS = "analysis"
+	// SETTINGS constant name of settings attribute in query of Index API
 	SETTINGS = "settings"
-	ALIAS    = "_alias"
-	// settings params
-	ShardsNumber    = "number_of_shards"
-	ReplicasNumber  = "number_of_replicas"
+	// ALIAS constant name of field that defines alias name of this index
+	ALIAS = "_alias"
+	// ShardsNumber settings param of filed defining number of shards of index
+	ShardsNumber = "number_of_shards"
+	// ReplicasNumber settings param of field defining replicas number
+	ReplicasNumber = "number_of_replicas"
+	// RefreshInterval  settings param of field defining the refresh interval
 	RefreshInterval = "refresh_interval"
-	// analyzer params
-	TOKENIZER      = "tokenizer"        //
-	FILTER         = "filter"           //
-	MinShingleSize = "min_shingle_size" //
-	MaxShingleSize = "max_shingle_size" //
-	OutputUnigrams = "output_unigrams"  //
+	// TOKENIZER name of the analyzer responsible for tokenisation
+	TOKENIZER = "tokenizer" // analyzer params
+	// FILTER a parameter name of mapping in an Index API query
+	FILTER = "filter"
+	// MinShingleSize name of field that defines the minimum size of shingle
+	MinShingleSize = "min_shingle_size"
+	// MaxShingleSize name of field that defines the maximum size of shingle
+	MaxShingleSize = "max_shingle_size"
+	// OutputUnigrams constant name of field defining output unigrams
+	OutputUnigrams = "output_unigrams"
 )
 
 // Index a strcuture to hold a query for building/deleting indexes
