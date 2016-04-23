@@ -11,16 +11,12 @@ import (
 	"strings"
 )
 
-/*
- * Elasticsearch client
- */
+// Elasticsearch client
 type Elasticsearch struct {
 	Addr string
 }
 
-/*
- * Build the url of an API request call
- */
+// request build the url of an API request call
 func (client *Elasticsearch) request(index, class string, id int64, request string) string {
 	var url string
 	if index == "" {
@@ -35,9 +31,7 @@ func (client *Elasticsearch) request(index, class string, id int64, request stri
 	return url
 }
 
-/*
- * Execute an HTTP request and parse the response
- */
+// Execute an HTTP request and parse the response
 func (client *Elasticsearch) Execute(method, url, query string, parser Parser) (interface{}, error) {
 	var body io.Reader
 	if query != "" {
@@ -54,14 +48,11 @@ func (client *Elasticsearch) Execute(method, url, query string, parser Parser) (
 		// marshal response
 		result := parser.Parse(data)
 		return result, nil
-	} else {
-		return nil, err
 	}
+	return nil, err
 }
 
-/*
- * Return a string representation of the dictionary
- */
+// String returns a string representation of the dictionary
 func String(obj interface{}) string {
 	marshaled, err := json.Marshal(obj)
 	if err != nil {
@@ -70,9 +61,7 @@ func String(obj interface{}) string {
 	return string(marshaled)
 }
 
-/*
- * Construct a url
- */
+// urlString Construct a url
 func urlString(prefix string, params map[string]string) string {
 	url := prefix
 	if len(params) > 0 {
@@ -95,9 +84,7 @@ func urlString(prefix string, params map[string]string) string {
 	return url
 }
 
-/*
- * Execute a REST request
- */
+// Execute a REST request
 func exec(method, url string, body io.Reader) (io.Reader, error) {
 	req, err := http.NewRequest(method, url, body)
 	if err != nil {
