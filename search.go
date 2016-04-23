@@ -25,10 +25,14 @@ const (
 	SCROLL = "scroll"
 	// DisMax query name
 	DisMax = "dis_max"
-	// MultiMatch a query name
+	// MultiMatch a match query on multiple terms
 	MultiMatch = "multi_match"
-	// Boosting a query name
+	// Boosting a query that include additional results but donwgrade them
 	Boosting = "boosting"
+	// ConstantScore a query that assings 1 as score to any matching document
+	ConstantScore = "constant_score"
+	// FunctionScore a query for customizing the scoring with predefined functions: weight, field_value_factor, random_score
+	FunctionScore = "function_score"
 	// MatchPhrase 'phrase' search query
 	MatchPhrase = "match_phrase"
 	// MatchPhrasePrefix 'phrase' search query
@@ -42,8 +46,9 @@ const (
 	// RESCORE rescores result of previous query
 	RESCORE = "rescore"
 	// RescoreQuery
-	RescoreQuery = "rescroe_query"
-	// query params
+	RescoreQuery = "rescore_query"
+
+	// MinimumShouldMatch query params
 	MinimumShouldMatch = "minimum_should_match"
 	// SLOP in 'phrase' queries to describe proximity/word ordering
 	SLOP = "slop"
@@ -59,6 +64,15 @@ const (
 	IndicesBoost = "indices_boost"
 	// NegativeBoost in boosting query, a float representing negative boost value
 	NegativeBoost = "negative_boost"
+
+	// Weight a predifined scoring function that assigns a non normalized boost to each document
+	Weight = "weight"
+	// FieldValueFactor a predifined scoring function that uses a value of a field from the given document to alter _score
+	FieldValueFactor = "field_value_factor"
+	// RandomScore a predifined scoring function to randomly sort documents for different users
+	RandomScore = "random_score"
+	// ScriptScore a predifined scoring function that uses a custom script
+	ScriptScore = "script_score"
 )
 
 // Search a request representing a search
@@ -120,6 +134,11 @@ func NewRescore() *Object {
 // NewRescoreQuery Create a `rescore` query algorithm
 func NewRescoreQuery() *Object {
 	return NewQuery(RescoreQuery)
+}
+
+// NewConstantScore creates a new 'constant_score' query
+func NewConstantScore() *Object {
+	return NewQuery(ConstantScore)
 }
 
 // newQuery used for test purpose
