@@ -7,32 +7,58 @@ type Dict map[string]interface{}
 
 // fields of a Search API call
 const (
-	// APIs
-	EXPLAIN  = "explain"
+	// EXPLAIN constant name of Explain API request
+	EXPLAIN = "explain"
+	// VALIDATE constant name of Validate API request
 	VALIDATE = "validate"
-	SEARCH   = "search"
-	// Query elements
-	ALL     = "_all"
+	// SEARCH constant name of Search API request
+	SEARCH = "search"
+	// ALL a query element
+	ALL = "_all"
+	// INCLUDE a query element
 	INCLUDE = "include_in_all"
-	SOURCE  = "_source"
-	// url params
+	// SOURCE a query element
+	SOURCE = "_source"
+	// SearchType a url param
 	SearchType = "search_type"
-	SCROLL     = "scroll"
-	// query names
-	DisMax            = "dis_max"
-	MultiMatch        = "multi_match"
-	MatchPhrase       = "match_phrase" // 'phrase' search query
+	// SCROLL a url param
+	SCROLL = "scroll"
+	// DisMax query name
+	DisMax = "dis_max"
+	// MultiMatch a query name
+	MultiMatch = "multi_match"
+	// Boosting a query name
+	Boosting = "boosting"
+	// MatchPhrase 'phrase' search query
+	MatchPhrase = "match_phrase"
+	// MatchPhrasePrefix 'phrase' search query
 	MatchPhrasePrefix = "match_phrase_prefix"
-	Prefix            = "prefix"   // search terms with given prefix
-	Wildcard          = "wildcard" // search terms with widcard
-	RegExp            = "regexp"   // filter terms application to regular expression
-	RESCORE           = "rescore"  // rescore result of previous query
-	RescoreQuery      = "rescroe_query"
+	// Prefix search terms with given prefix
+	Prefix = "prefix"
+	// Wildcard search terms with widcard
+	Wildcard = "wildcard"
+	// RegExp filter terms application to regular expression
+	RegExp = "regexp"
+	// RESCORE rescores result of previous query
+	RESCORE = "rescore"
+	// RescoreQuery
+	RescoreQuery = "rescroe_query"
 	// query params
 	MinimumShouldMatch = "minimum_should_match"
-	SLOP               = "slop"           // in 'phrase' queries to describe proximity/word ordering
-	MaxExpansions      = "max_expansions" // controls how many terms the prefix is allowed to match
-	WindowSize         = "window_size"    // number of document from each shard
+	// SLOP in 'phrase' queries to describe proximity/word ordering
+	SLOP = "slop"
+	// MaxExpansions controls how many terms the prefix is allowed to match
+	MaxExpansions = "max_expansions"
+	// WindowSize number of document from each shard
+	WindowSize = "window_size"
+	// DisableCoord a boolean value to enable/disable the use of Query Coordination in 'bool' queries
+	DisableCoord = "disable_coord"
+	// Boost an Int value in query clauses to give it more importance
+	Boost = "boost"
+	// IndicesBoost in mutli-index search, a dictionary for each index name it's boost value
+	IndicesBoost = "indices_boost"
+	// NegativeBoost in boosting query, a float representing negative boost value
+	NegativeBoost = "negative_boost"
 )
 
 // Search a request representing a search
@@ -339,4 +365,51 @@ func NewExists() *Object {
 // NewMissing creates a new `missing` filter (the inverse of `exists`)
 func NewMissing() *Object {
 	return NewQuery("missing")
+}
+
+// BoostingQuery a strcuture representing the 'boosting' query
+type BoostingQuery struct {
+	positive      Dict
+	negative      Dict
+	negativeBoost float32
+}
+
+// NewBoosting returns a new Boosting query
+func NewBoosting() *BoostingQuery {
+	return &BoostingQuery{
+		positive: make(Dict),
+		negative: make(Dict),
+	}
+}
+
+// Name returns the name of boosting query
+func (boosting *BoostingQuery) Name() string {
+	return Boosting
+}
+
+// KV returns the body of this boosting query as a dictionary
+func (boosting *BoostingQuery) KV() Dict {
+	dict := make(Dict)
+	dict["positive"] = boosting.positive
+	dict["negative"] = boosting.negative
+	dict[NegativeBoost] = boosting.negativeBoost
+	return dict
+}
+
+// SetNegativeBoost sets the negative boost
+func (boosting *BoostingQuery) SetNegativeBoost(value float32) *BoostingQuery {
+	boosting.negativeBoost = value
+	return boosting
+}
+
+// AddPositive adds a positive clause to boosting query
+func (boosting *BoostingQuery) AddPositive(name string, value interface{}) *BoostingQuery {
+	boosting.positive[name] = value
+	return boosting
+}
+
+// AddNegative adds a negative clause to boosting query
+func (boosting *BoostingQuery) AddNegative(name string, value interface{}) *BoostingQuery {
+	boosting.negative[name] = value
+	return boosting
 }
