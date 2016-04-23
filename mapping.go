@@ -3,20 +3,34 @@ package elastic
 import ()
 
 const (
-	MAPPING           = "mapping"
-	MAPPINGS          = "mappings"
-	TYPE              = "type"
-	INDEX             = "index"
-	PROPERTIES        = "properties"
-	MATCH             = "match"
-	MatchMappingType  = "match_mapping_type"
-	DynamicTemplates  = "dynamic_templates"
-	DEFAULT           = "_default_"
+	// MAPPING part of Mapping API path url
+	MAPPING = "mapping"
+	// MAPPINGS body of Mapping API query
+	MAPPINGS = "mappings"
+	// TYPE constant name of data type property of field
+	TYPE = "type"
+	// INDEX constant name of index name
+	INDEX = "index"
+	// PROPERTIES constant name of Mapping query body that defines properties
+	PROPERTIES = "properties"
+	// MATCH
+	MATCH = "match"
+	// MatchMappingType
+	MatchMappingType = "match_mapping_type"
+	// DynamicTemplates
+	DynamicTemplates = "dynamic_templates"
+	// DEFAULT
+	DEFAULT = "_default_"
+	// PositionOffsetGap constant name for defining acceptable offset gap
 	PositionOffsetGap = "position_offset_gap"
 	// IndexAnalyzer index-time analyzer
 	IndexAnalyzer = "index_analyzer"
 	// SearchAnalyzer search-time analyzer
 	SearchAnalyzer = "search_analyzer"
+	// IndexOptions defines indexing options in Mapping query
+	IndexOptions = "index_options"
+	// Norms constant name for configuring field length normalization
+	Norms = "norms"
 )
 
 // Mapping maps between the json fields and how Elasticsearch store them
