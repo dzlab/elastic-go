@@ -60,8 +60,9 @@ func (client *Elasticsearch) Index(index string) *Index {
 }
 
 // Settings add a setting parameter to the Index query body
-func (idx *Index) Settings(settings Dict) {
+func (idx *Index) Settings(settings Dict) *Index {
 	idx.dict[SETTINGS] = settings
+	return idx
 }
 
 // Mappings set the mapping parameter
