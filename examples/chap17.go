@@ -39,4 +39,31 @@ func chap17() {
 	// a specific boost value to a clause
 	c.Search("", "").AddQuery(e.NewQuery("query").AddQuery(e.NewBool().AddShould(e.NewConstantScore().AddQuery(e.NewQuery("query").AddQuery(e.NewMatch().Add("description", "wifi")))).AddShould(e.NewConstantScore().AddQuery(e.NewQuery("query").AddQuery(e.NewMatch().Add("description", "garden")))).AddShould(e.NewConstantScore().Add(e.Boost, 2).AddQuery(e.NewQuery("query").AddQuery(e.NewMatch().Add("description", "pool")))))).Get()
 
+	// full text search with boosting (more relevance) based on popularity
+	c.Insert("blogposts", "post").Document(1, e.Dict{"title": "About popularity", "content": "In this post we will talk about...", "votes": 6}).Put()
+	c.Search("blogposts", "post").AddQuery(e.NewQuery("query").AddQuery(e.NewFunctionScore().AddQuery(e.NewQuery("query").AddQuery(e.NewMultiMatch().Add("query", "popularity").Add("fields", []string{"title", "content"}))).AddQuery(e.NewQuery(e.FieldValueFactor).Add("field", "votes")))).Get()
+	// a better way to incorporate popularity is by using a modifier (e.g. log1p) so that first few votes count a lot, but subsequent votes less
+	c.Search("blogposts", "post").AddQuery(e.NewQuery("query").AddQuery(e.NewFunctionScore().AddQuery(e.NewQuery("query").AddQuery(e.NewMultiMatch().Add("query", "popularity").Add("fields", []string{"title", "content"}))).AddQuery(e.NewQuery(e.FieldValueFactor).Add("field", "votes").Add("modifier", "log1p")))).Get()
+	// use in addition a factor
+	c.Search("blogposts", "post").AddQuery(e.NewQuery("query").AddQuery(e.NewFunctionScore().AddQuery(e.NewQuery("query").AddQuery(e.NewMultiMatch().Add("query", "popularity").Add("fields", []string{"title", "content"}))).AddQuery(e.NewQuery(e.FieldValueFactor).Add("field", "votes").Add(e.Modifer, "log1p").Add(e.Factor, 2)))).Get()
+	// use boost_mode to modifiy how calculated score is combined with _score
+	c.Search("blogposts", "post").AddQuery(e.NewQuery("query").AddQuery(e.NewFunctionScore().AddQuery(e.NewQuery("query").AddQuery(e.NewMultiMatch().Add("query", "popularity").Add("fields", []string{"title", "content"}))).AddQuery(e.NewQuery(e.FieldValueFactor).Add("field", "votes").Add(e.Modifer, "log1p").Add("factor", 0.1)).Add(e.BoostMode, "sum"))).Get()
+	// cap the maximum of the scoring function
+	c.Search("blogposts", "post").AddQuery(e.NewQuery("query").AddQuery(e.NewFunctionScore().AddQuery(e.NewQuery("query").AddQuery(e.NewMultiMatch().Add("query", "popularity").Add("fields", []string{"title", "content"}))).AddQuery(e.NewQuery(e.FieldValueFactor).Add("field", "votes").Add(e.Modifer, "log1p").Add("factor", 0.1)).Add(e.BoostMode, "sum").Add(e.MaxBoost, 1.5))).Get()
+
+	// boosting filtered subsets
+	c.Search("", "").AddQuery(e.NewQuery("query").AddQuery(e.NewFunctionScore().AddQuery(e.NewFilter().Add("term", e.Dict{"city": "Barcelona"})).AddMultiple("functions", e.Dict{e.Filter: e.NewQuery("term").Add("features", "wifi").Dict(), e.Weight: 1}, e.Dict{e.Filter: e.NewQuery("term").Add("features", "garden").Dict(), e.Weight: 1}, e.Dict{e.Filter: e.NewQuery("term").Add("features", "pool").Dict(), e.Weight: 2}).Add(e.ScoreMode, "sum"))).Get()
+	// introduce some randomness so that documents with similar score get same exposuer with same order for each user (i.e. consistently random) in the seed parameter
+	c.Search("", "").AddQuery(e.NewQuery("query").AddQuery(e.NewFunctionScore().AddQuery(e.NewFilter().AddQuery(e.NewTerm().Add("city", "Barcelona"))).AddMultiple("functions", e.Dict{e.Filter: e.NewTerm().Add("features", "wifi").Dict(), e.Weight: 1}, e.Dict{e.Filter: e.NewTerm().Add("features", "garden").Dict(), e.Weight: 1}, e.Dict{e.Filter: e.NewTerm().Add("features", "pool").Dict(), e.Weight: 2}, e.NewQuery(e.RandomScore).Add("seed", "the users session id").Dict()).Add(e.ScoreMode, "sum"))).Get()
+
+	// decay function: the closer the better
+	// e.g. find a place to rent near center of london and not exceeding 100£ the night
+	c.Search("", "").AddQuery(e.NewQuery("query").AddQuery(e.NewFunctionScore().AddMultiple("functions", e.NewQuery("gauss").AddQuery(e.NewQuery("location").Add("origin", e.Dict{"lat": 51.5, "lon": 0.12}).Add("offset", "2km").Add("scale", "3km")).Dict(), e.NewQuery("gauss").AddQuery(e.NewQuery("price").Add("origin", "50").Add("offset", 50).Add("scale", "20")).Add(e.Weight, 2).Dict()))).Pretty().Get()
+	// use a custom Groovy script to score documents
+	c.Search("", "").AddQuery(e.NewQuery("query").AddQuery(e.NewFunctionScore().AddMultiple("functions", e.NewQuery("gauss").AddQuery(e.NewQuery("location").Add("origin", e.Dict{"lat": 51.5, "lon": 0.12}).Add("offset", "2km").Add("scale", "3km")).Dict(), e.NewQuery("gauss").AddQuery(e.NewQuery("price").Add("origin", "50").Add("offset", 50).Add("scale", "20")).Add(e.Weight, 2).Dict(), e.NewQuery(e.ScriptScore).AddQuery(e.NewQuery("params").Add("threshold", 80).Add("discount", 0.1).Add("target", 10)).Add("script", "price = doc['price'].value; margin=doc['margin'].value;if(price<threshold){return price * margin/target}; return price * (1-discount)*margin/target").Dict()))).Pretty().Get()
+
+	// changing similarities
+	c.Index("my_index").Mappings("doc", e.NewMapping().AddField("title", e.Dict{e.TYPE: "string", e.Similarity: "BM25"}).AddField("body", e.Dict{e.TYPE: "string", e.Similarity: "default"})).Put()
+	// configuring BM25, e.g. disable field length normalization
+	c.Index("my_index").Settings(e.NewQuery("similarity").AddQuery(e.NewQuery("my_bm25").Add("type", "BM25").Add("b", 0)).Dict()).Mappings("doc", e.NewMapping().AddField("title", e.Dict{e.TYPE: "string", e.Similarity: "my_bm25"}).AddField("body", e.Dict{e.TYPE: "string", e.Similarity: "BM25"})).Put()
 }
