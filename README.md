@@ -15,6 +15,12 @@ elastic-go is a golang client library that wraps Elasticsearch REST API. It curr
 ### Installation
 ```go get github.com/dzlab/elastic-go```
 
+#### Tests and coverage
+```
+go test
+gocov test | gocov report
+```
+
 ### Documentation
 http://godoc.org/github.com/dzlab/elastic-go
 
@@ -26,9 +32,26 @@ client := &e.Elasticsearch{Addr: "localhost:9200"}
 client.Search("", "").Add("from", 30).Add("size", 10).Get()
 // create an index example
 client.Index("my_index").Delete()
-cf := e.NewAnalyzer("char_filter").Add1("&_to_and", "type", "mapping").Add2("&_to_and", map[string]interface{}{"mappings": []string{"&=> and "}})
-f := e.NewAnalyzer("filter").Add2("my_stopwords", map[string]interface{}{"type": "stop", "stopwords": []string{"the", "a"}})
-a := e.NewAnalyzer("analyzer").Add2("my_analyzer", e.Dict{"type": "custom", "char_filter": []string{"html_strip", "&_to_and"}, "tokenizer": "standard", "filter": []string{"lowercase", "my_stopwords"}})
+cf := e.NewAnalyzer("char_filter")
+  .Add1("&_to_and", "type", "mapping")
+  .Add2("&_to_and", map[string]interface{}{
+      "mappings": []string{"&=> and "},
+    }
+  )
+f := e.NewAnalyzer("filter")
+  .Add2("my_stopwords", map[string]interface{}{
+      "type": "stop", 
+      "stopwords": []string{"the", "a"},
+    }
+  )
+a := e.NewAnalyzer("analyzer")
+  .Add2("my_analyzer", e.Dict{
+      "type": "custom", 
+      "char_filter": []string{"html_strip", "&_to_and"}, 
+      "tokenizer": "standard", 
+      "filter": []string{"lowercase", "my_stopwords"},
+    }
+  )
 client.Index("my_index").AddAnalyzer(cf).AddAnalyzer(f).AddAnalyzer(a).Put()
 ```
 
