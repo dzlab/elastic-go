@@ -13,13 +13,13 @@ const (
 	INDEX = "index"
 	// PROPERTIES constant name of Mapping query body that defines properties
 	PROPERTIES = "properties"
-	// MATCH
+	// MATCH a query name
 	MATCH = "match"
-	// MatchMappingType
+	// MatchMappingType type of matchi mapping (e.g. string)
 	MatchMappingType = "match_mapping_type"
-	// DynamicTemplates
+	// DynamicTemplates dynamic mapping templates
 	DynamicTemplates = "dynamic_templates"
-	// DEFAULT
+	// DEFAULT default mappings
 	DEFAULT = "_default_"
 	// PositionOffsetGap constant name for defining acceptable offset gap
 	PositionOffsetGap = "position_offset_gap"
@@ -31,6 +31,8 @@ const (
 	IndexOptions = "index_options"
 	// Norms constant name for configuring field length normalization
 	Norms = "norms"
+	// Similarity in an Index mapping query. It defines the similarity algorithm to use. Possible values: default, BM25.
+	Similarity = "similarity"
 )
 
 // Mapping maps between the json fields and how Elasticsearch store them
