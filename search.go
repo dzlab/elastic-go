@@ -23,6 +23,8 @@ const (
 	SearchType = "search_type"
 	// SCROLL a url param
 	SCROLL = "scroll"
+	// Filter a query name
+	Filter = "filter"
 	// DisMax query name
 	DisMax = "dis_max"
 	// MultiMatch a match query on multiple terms
@@ -65,14 +67,28 @@ const (
 	// NegativeBoost in boosting query, a float representing negative boost value
 	NegativeBoost = "negative_boost"
 
-	// Weight a predifined scoring function that assigns a non normalized boost to each document
+	// Weight a predifined scoring function that can be used in any query. It assigns a non normalized boost to each document (i.e. is used as it is an not alterned like 'boost')
 	Weight = "weight"
 	// FieldValueFactor a predifined scoring function that uses a value of a field from the given document to alter _score
 	FieldValueFactor = "field_value_factor"
 	// RandomScore a predifined scoring function to randomly sort documents for different users
 	RandomScore = "random_score"
+	// Seed is a parameter used in comabination with 'random_score'. It is used to ensure same document ordering when same seed is used (e.g. session identifier).
+	Seed = "seed"
 	// ScriptScore a predifined scoring function that uses a custom script
 	ScriptScore = "script_score"
+	// Modifer a parameter of 'field_value_factor' in a FunctionScore query. It is used to alter the calculation of the new document score, possible values log1p, etc.
+	Modifer = "modifier"
+	// Factor a parameter of 'field_value_factor' in a FunctionScore query. It is used to multiply the value of the concerned field (e.g. votes) to alter the final score calculation.
+	Factor = "factor"
+	// BoostMode is a parameter in a FunctionScore query. It is used to specify how the calculated score will affect final document score.
+	// Possible values: multiply (mulitply _score by calculated result), sum (sum _score with calculated), min (lower of _score and calculated), max (higher of _score and calculated), replace (replace _score with calculated)
+	BoostMode = "boost_mode"
+	// MaxBoost is a parameter in a FunctionScore query. It is used to cap the maximum effect of the scoring function.
+	MaxBoost = "max_boost"
+	// ScoreMode is a parameter in a FunctionScore query. It defines, when there is many 'functions', how to reduce multiple results into single value.
+	// Possible values are multiply, sum, avg, max, min, first.
+	ScoreMode = "score_mode"
 )
 
 // Search a request representing a search
@@ -111,6 +127,11 @@ func NewQuery(name string) *Object {
 	return &Object{name: name, kv: make(Dict)}
 }
 
+// NewFilter returns a new filter query
+func NewFilter() *Object {
+	return NewQuery(Filter)
+}
+
 // NewMatch Create a new match query
 func NewMatch() *Object {
 	return NewQuery(MATCH)
@@ -141,9 +162,19 @@ func NewConstantScore() *Object {
 	return NewQuery(ConstantScore)
 }
 
+// NewFunctionScore creates a new 'function_score' query
+func NewFunctionScore() *Object {
+	return NewQuery(FunctionScore)
+}
+
 // newQuery used for test purpose
 func newQuery() *Object {
 	return &Object{name: "", kv: make(Dict)}
+}
+
+// Dict return a dictionarry representation of this object
+func (obj *Object) Dict() Dict {
+	return Dict{obj.name: obj.KV()}
 }
 
 // String returns a string representation of this object
