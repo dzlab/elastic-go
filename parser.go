@@ -2,62 +2,86 @@ package elastic
 
 import (
 	"encoding/json"
+	"errors"
 	"log"
 )
 
 // Parser an interface for parsing reponses
 type Parser interface {
-	Parse(data []byte) interface{}
+	Parse(data []byte) (interface{}, error)
+}
+
+// SuccessParser parses Success responses
+type SuccessParser struct{}
+
+// Parse rerturns a parsed Success result structure from the given data
+func (parser *SuccessParser) Parse(data []byte) (interface{}, error) {
+	success := Success{}
+	if err := json.Unmarshal(data, &success); err == nil {
+		log.Println("success", string(data), success)
+		return success, nil
+	}
+	log.Println("Failed to parse response", string(data))
+	return nil, errors.New("Failed to parse response")
+}
+
+// FailureParser a parser for search result
+type FailureParser struct{}
+
+// Parse rerturns a parsed Failure result structure from the given data
+func (parser *FailureParser) Parse(data []byte) (interface{}, error) {
+	failure := Failure{}
+	if err := json.Unmarshal(data, &failure); err == nil {
+		log.Println("failed", string(data), failure)
+		return failure, nil
+	}
+	log.Println("Failed to parse response", string(data))
+	return nil, errors.New("Failed to parse response")
 }
 
 // SearchResultParser a parser for search result
 type SearchResultParser struct{}
 
 // Parse rerturns a parsed search result structure from the given data
-func (parser *SearchResultParser) Parse(data []byte) interface{} {
-	var result interface{}
+func (parser *SearchResultParser) Parse(data []byte) (interface{}, error) {
 	search := SearchResult{}
 	if err := json.Unmarshal(data, &search); err == nil {
 		log.Println("search", string(data), search)
-		result = search
-	} else {
-		success := Success{}
-		if err := json.Unmarshal(data, &success); err == nil {
-			log.Println("success", string(data), success)
-			result = success
-		} else {
-			failure := Failure{}
-			if err := json.Unmarshal(data, &failure); err == nil {
-				log.Println("failed", string(data), failure)
-				result = failure
-			} else {
-				log.Println("Failed to parse response", string(data))
-			}
-		}
+		return search, nil
 	}
-	return result
+	next1 := &SuccessParser{}
+	if success, err := next1.Parse(data); err == nil {
+		log.Println("success", string(data), success)
+		return success, nil
+	}
+	next2 := &FailureParser{}
+	if failure, err := next2.Parse(data); err == nil {
+		log.Println("failed", string(data), failure)
+		return failure, nil
+	}
+	log.Println("Failed to parse response", string(data))
+	return nil, errors.New("Failed to parse response")
 }
 
 // IndexResultParser a parser for index result
 type IndexResultParser struct{}
 
 // Parse returns an index result structure from the given data
-func (parser *IndexResultParser) Parse(data []byte) interface{} {
-	var result interface{}
-	success := Success{}
-	if err := json.Unmarshal(data, &success); err == nil {
+func (parser *IndexResultParser) Parse(data []byte) (interface{}, error) {
+	next1 := SuccessParser{}
+	if success, err := next1.Parse(data); err == nil {
 		log.Println("success", success)
-	} else {
-		log.Println("Failed to parse response", string(data))
+		return success, nil
 	}
-	return result
+	log.Println("Failed to parse response", string(data))
+	return nil, errors.New("Failed to parse response")
 }
 
 // MappingResultParser a parser for mapping result
 type MappingResultParser struct{}
 
 // Parse returns an index result structure from the given data
-func (parser *MappingResultParser) Parse(data []byte) interface{} {
+func (parser *MappingResultParser) Parse(data []byte) (interface{}, error) {
 	var result interface{}
 	/*index := IndexResult{}
 	if err := json.Unmarshal(data, &index); err == nil {
@@ -66,68 +90,61 @@ func (parser *MappingResultParser) Parse(data []byte) interface{} {
 		log.Println("Failed to parse response", string(data))
 	}*/
 	log.Println(string(data))
-	return result
+	return result, nil
 }
 
 // InsertResultParser a parser for mapping result
 type InsertResultParser struct{}
 
 // Parse returns an index result structure from the given data
-func (parser *InsertResultParser) Parse(data []byte) interface{} {
-	var result interface{}
+func (parser *InsertResultParser) Parse(data []byte) (interface{}, error) {
 	insert := InsertResult{}
 	if err := json.Unmarshal(data, &insert); err == nil {
-		log.Println("insert", string(data), insert)
-	} else {
-		success := Success{}
-		if err := json.Unmarshal(data, &success); err == nil {
-			log.Println("success", string(data), success)
-			result = success
-		} else {
-			log.Println("Failed to parse response", string(data))
-		}
+		return insert, nil
 	}
-	return result
+	next1 := SuccessParser{}
+	if success, err := next1.Parse(data); err == nil {
+		log.Println("success", string(data), success)
+		return success, nil
+	}
+	log.Println("Failed to parse response", string(data))
+	return nil, errors.New("Failed to parse response")
 }
 
 // AnalyzeResultParser a parser for analyze result
 type AnalyzeResultParser struct{}
 
 // Parse returns an analyze result structure from the given data
-func (parser *AnalyzeResultParser) Parse(data []byte) interface{} {
-	var result interface{}
+func (parser *AnalyzeResultParser) Parse(data []byte) (interface{}, error) {
 	analyze := AnalyzeResult{}
 	if err := json.Unmarshal(data, &analyze); err == nil {
 		log.Println("analyze", string(data), analyze)
-	} else {
-		success := Success{}
-		if err := json.Unmarshal(data, &success); err == nil {
-			log.Println("success", string(data), success)
-			result = success
-		} else {
-			log.Println("Failed to parse response", string(data))
-		}
+		return analyze, nil
 	}
-	return result
+	next1 := SuccessParser{}
+	if success, err := next1.Parse(data); err == nil {
+		log.Println("success", string(data), success)
+		return success, nil
+	}
+	log.Println("Failed to parse response", string(data))
+	return nil, errors.New("Failed to parse response")
 }
 
 // BulkResultParser a parser for analyze result
 type BulkResultParser struct{}
 
 // Parse returns an analyze result structure from the given data
-func (parser *BulkResultParser) Parse(data []byte) interface{} {
-	var result interface{}
+func (parser *BulkResultParser) Parse(data []byte) (interface{}, error) {
 	bulk := BulkResult{}
 	if err := json.Unmarshal(data, &bulk); err == nil {
 		log.Println("bulk", string(data), bulk)
-	} else {
-		success := Success{}
-		if err := json.Unmarshal(data, &success); err == nil {
-			log.Println("success", string(data), success)
-			result = success
-		} else {
-			log.Println("Failed to parse response", string(data))
-		}
+		return bulk, nil
 	}
-	return result
+	next := SuccessParser{}
+	if success, err := next.Parse(data); err == nil {
+		log.Println("success", string(data), success)
+		return success, nil
+	}
+	log.Println("Failed to parse response", string(data))
+	return nil, errors.New("Failed to parse response")
 }

@@ -46,8 +46,8 @@ func (client *Elasticsearch) Execute(method, url, query string, parser Parser) (
 	}
 	if data, err := ioutil.ReadAll(reader); err == nil {
 		// marshal response
-		result := parser.Parse(data)
-		return result, nil
+		result, err := parser.Parse(data)
+		return result, err
 	}
 	return nil, err
 }

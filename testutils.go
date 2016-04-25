@@ -2,6 +2,7 @@ package elastic
 
 import (
 	"fmt"
+	"reflect"
 	"runtime"
 	"strings"
 	"testing"
@@ -26,9 +27,17 @@ func caller() string {
 	return fmt.Sprintf("%s:%d %s", shortfile, line, method)
 }
 
-/*
- * assert if all entries of arrays are equals
- */
+// assert if all interface{} entries of arrays are equals
+func equalsInterface(t *testing.T, actual, expected []interface{}) {
+	for i := 0; i < len(actual); i++ {
+		if reflect.DeepEqual(actual[i], expected[i]) == false {
+			from := "(" + caller() + ")"
+			t.Errorf("%s Should be equal\n%s\n%s", from, actual[i], expected[i])
+		}
+	}
+}
+
+// assert if all string entries of arrays are equals
 func equals(t *testing.T, actual, expected []string) {
 	for i := 0; i < len(actual); i++ {
 		if actual[i] != expected[i] {
