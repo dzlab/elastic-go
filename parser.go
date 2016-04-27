@@ -45,17 +45,17 @@ type SearchResultParser struct{}
 // Parse rerturns a parsed search result structure from the given data
 func (parser *SearchResultParser) Parse(data []byte) (interface{}, error) {
 	search := SearchResult{}
-	if err := json.Unmarshal(data, &search); err == nil {
+	if err := json.Unmarshal(data, &search); err == nil && !deepEqual(search, *new(SearchResult)) {
 		log.Println("search", string(data), search)
 		return search, nil
 	}
 	next1 := &SuccessParser{}
-	if success, err := next1.Parse(data); err == nil {
+	if success, err := next1.Parse(data); err == nil && success != *new(Success) {
 		log.Println("success", string(data), success)
 		return success, nil
 	}
 	next2 := &FailureParser{}
-	if failure, err := next2.Parse(data); err == nil {
+	if failure, err := next2.Parse(data); err == nil && !deepEqual(failure, *new(Failure)) {
 		log.Println("failed", string(data), failure)
 		return failure, nil
 	}
@@ -69,7 +69,7 @@ type IndexResultParser struct{}
 // Parse returns an index result structure from the given data
 func (parser *IndexResultParser) Parse(data []byte) (interface{}, error) {
 	next1 := SuccessParser{}
-	if success, err := next1.Parse(data); err == nil {
+	if success, err := next1.Parse(data); err == nil && success != *new(Success) {
 		log.Println("success", success)
 		return success, nil
 	}
@@ -99,11 +99,11 @@ type InsertResultParser struct{}
 // Parse returns an index result structure from the given data
 func (parser *InsertResultParser) Parse(data []byte) (interface{}, error) {
 	insert := InsertResult{}
-	if err := json.Unmarshal(data, &insert); err == nil {
+	if err := json.Unmarshal(data, &insert); err == nil && insert != *new(InsertResult) {
 		return insert, nil
 	}
 	next1 := SuccessParser{}
-	if success, err := next1.Parse(data); err == nil {
+	if success, err := next1.Parse(data); err == nil && success != *new(Success) {
 		log.Println("success", string(data), success)
 		return success, nil
 	}
@@ -117,12 +117,12 @@ type AnalyzeResultParser struct{}
 // Parse returns an analyze result structure from the given data
 func (parser *AnalyzeResultParser) Parse(data []byte) (interface{}, error) {
 	analyze := AnalyzeResult{}
-	if err := json.Unmarshal(data, &analyze); err == nil {
+	if err := json.Unmarshal(data, &analyze); err == nil && !deepEqual(analyze, *new(AnalyzeResult)) {
 		log.Println("analyze", string(data), analyze)
 		return analyze, nil
 	}
 	next1 := SuccessParser{}
-	if success, err := next1.Parse(data); err == nil {
+	if success, err := next1.Parse(data); err == nil && success != *new(Success) {
 		log.Println("success", string(data), success)
 		return success, nil
 	}
@@ -136,12 +136,12 @@ type BulkResultParser struct{}
 // Parse returns an analyze result structure from the given data
 func (parser *BulkResultParser) Parse(data []byte) (interface{}, error) {
 	bulk := BulkResult{}
-	if err := json.Unmarshal(data, &bulk); err == nil {
+	if err := json.Unmarshal(data, &bulk); err == nil && !deepEqual(bulk, *new(BulkResult)) {
 		log.Println("bulk", string(data), bulk)
 		return bulk, nil
 	}
 	next := SuccessParser{}
-	if success, err := next.Parse(data); err == nil {
+	if success, err := next.Parse(data); err == nil && success != *new(Success) {
 		log.Println("success", string(data), success)
 		return success, nil
 	}

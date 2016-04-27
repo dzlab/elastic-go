@@ -27,6 +27,11 @@ func caller() string {
 	return fmt.Sprintf("%s:%d %s", shortfile, line, method)
 }
 
+// check if two objects are equal
+func deepEqual(a, b interface{}) bool {
+	return reflect.DeepEqual(a, b)
+}
+
 // assert if all interface{} entries of arrays are equals
 func equalsInterface(t *testing.T, actual, expected []interface{}) {
 	for i := 0; i < len(actual); i++ {

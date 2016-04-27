@@ -25,13 +25,13 @@ func TestInsertResultParser(t *testing.T) {
 	input := []string{
 		`{"_index":"blogposts","_type":"post","_id":"1","_version":2,"_shards":{"total":2,"successful":1,"failed":0},"created":false}`,
 		`{"_index":"my_index","_type":"groups","_id":"1","_version":1,"_shards":{"total":2,"successful":1,"failed":0},"created":true}`,
-		//`{"acknowledged":true}`,
+		`{"acknowledged":true}`,
 	}
 	// expected results
 	expected := []interface{}{
 		InsertResult{Index: "blogposts", Doctype: "post", ID: "1", Version: 2, Shards: Shard{Total: 2, Successful: 1, Failed: 0}, Created: false},
 		InsertResult{Index: "my_index", Doctype: "groups", ID: "1", Version: 1, Shards: Shard{Total: 2, Successful: 1, Failed: 0}, Created: true},
-		//Success{Acknowledged: true},
+		Success{Acknowledged: true},
 	}
 	// check parsing result
 	checkParsingResult(t, input, parser, expected)
