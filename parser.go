@@ -107,6 +107,11 @@ func (parser *InsertResultParser) Parse(data []byte) (interface{}, error) {
 		log.Println("success", string(data), success)
 		return success, nil
 	}
+	next2 := &FailureParser{}
+	if failure, err := next2.Parse(data); err == nil && !deepEqual(failure, *new(Failure)) {
+		log.Println("failed", string(data), failure)
+		return failure, nil
+	}
 	log.Println("Failed to parse response", string(data))
 	return nil, errors.New("Failed to parse response")
 }

@@ -8,15 +8,16 @@ import (
 // e.g.:{"error":{"root_cause":[{"type":"no_shard_available_action_exception","reason":"No shard available for [org.elasticsearch.action.admin.indices.analyze.AnalyzeRequest@74508901]"}],"type":"no_shard_available_action_exception","reason":"No shard available for [org.elasticsearch.action.admin.indices.analyze.AnalyzeRequest@74508901]"},"status":503}
 // e.g.:{"error":{"root_cause":[{"type":"index_already_exists_exception","reason":"already exists","index":"my_index"}],"type":"index_already_exists_exception","reason":"already exists","index":"my_index"},"status":400}
 type Failure struct {
-	Err Error `json:"error"`
+	Err    Error `json:"error"`
+	Status int   `json:"status"`
 }
 
 // Error is a structure representing the Elasticsearch error response
 type Error struct {
 	RootCause []Dict `json:"root_cause"`
-	Kind      string `json:"type"`
+	Type      string `json:"type"`
 	Reason    string `json:"reason"`
-	Status    int    `json:"status"`
+	CausedBy  Dict   `json:"caused_by"`
 }
 
 // Success is a structure representing an Elasticsearch success response
@@ -111,7 +112,7 @@ type InsertResult struct {
 	Version int    `json:"_version"`
 	Shards  Shard  `json:"_shards"`
 	Created bool   `json:"created"`
-	Status  int    `json:"status"`
+	//Status  int    `json:"status"`
 }
 
 /////////////////////////////////// Bulk Query

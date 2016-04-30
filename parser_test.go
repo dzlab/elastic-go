@@ -26,12 +26,14 @@ func TestInsertResultParser(t *testing.T) {
 		`{"_index":"blogposts","_type":"post","_id":"1","_version":2,"_shards":{"total":2,"successful":1,"failed":0},"created":false}`,
 		`{"_index":"my_index","_type":"groups","_id":"1","_version":1,"_shards":{"total":2,"successful":1,"failed":0},"created":true}`,
 		`{"acknowledged":true}`,
+		`{"error":{"root_cause":[{"type":"mapper_parsing_exception","reason":"failed to parse [title]"}],"type":"mapper_parsing_exception","reason":"failed to parse [title]","caused_by":{"type":"json_parse_exception","reason":"Unexpected end-of-input in VALUE_STRING\n at [Source: org.elasticsearch.common.io.stream.InputStreamStreamInput@1281d55b; line: 1, column: 35]"}},"status":400}`,
 	}
 	// expected results
 	expected := []interface{}{
 		InsertResult{Index: "blogposts", Doctype: "post", ID: "1", Version: 2, Shards: Shard{Total: 2, Successful: 1, Failed: 0}, Created: false},
 		InsertResult{Index: "my_index", Doctype: "groups", ID: "1", Version: 1, Shards: Shard{Total: 2, Successful: 1, Failed: 0}, Created: true},
 		Success{Acknowledged: true},
+		Failure{Err: Error{RootCause: []Dict{Dict{"type": "mapper_parsing_exception", "reason": "failed to parse [title]"}}, Type: "mapper_parsing_exception", Reason: "failed to parse [title]", CausedBy: Dict{"type": "json_parse_exception", "reason": "Unexpected end-of-input in VALUE_STRING\n at [Source: org.elasticsearch.common.io.stream.InputStreamStreamInput@1281d55b; line: 1, column: 35]"}}, Status: 400},
 	}
 	// check parsing result
 	checkParsingResult(t, input, parser, expected)
