@@ -29,6 +29,10 @@ const (
 	MaxShingleSize = "max_shingle_size"
 	// OutputUnigrams constant name of field defining output unigrams
 	OutputUnigrams = "output_unigrams"
+	// StemExclusion a property in Analyzer settings used to define words that the analyzer should not stem
+	StemExclusion = "stem_exclusion"
+	// Stopwords a property in Analyzer settings used to define custom stopwords than the ones used by default by the analyzer
+	Stopwords = "stopwords"
 )
 
 // Index a strcuture to hold a query for building/deleting indexes

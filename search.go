@@ -50,7 +50,7 @@ const (
 	// RescoreQuery
 	RescoreQuery = "rescore_query"
 
-	// MinimumShouldMatch query params
+	// MinimumShouldMatch query params. It is used to reduce the number of low qualitymatches.
 	MinimumShouldMatch = "minimum_should_match"
 	// SLOP in 'phrase' queries to describe proximity/word ordering
 	SLOP = "slop"
@@ -62,7 +62,7 @@ const (
 	DisableCoord = "disable_coord"
 	// Boost an Int value in query clauses to give it more importance
 	Boost = "boost"
-	// IndicesBoost in mutli-index search, a dictionary for each index name it's boost value
+	// IndicesBoost in mutli-index search, a dictionary for each index name it's boost value. For instance, it can be used to specify a language preference if there is an index defined per language (e.g. blogs-en, blogs-fr)
 	IndicesBoost = "indices_boost"
 	// NegativeBoost in boosting query, a float representing negative boost value
 	NegativeBoost = "negative_boost"

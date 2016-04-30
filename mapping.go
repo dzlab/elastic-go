@@ -9,6 +9,8 @@ const (
 	MAPPINGS = "mappings"
 	// TYPE constant name of data type property of field
 	TYPE = "type"
+	// ANALYZER constant name of language analyzer for a field
+	ANALYZER = "analyzer"
 	// INDEX constant name of index name
 	INDEX = "index"
 	// PROPERTIES constant name of Mapping query body that defines properties
