@@ -66,7 +66,8 @@ func urlString(prefix string, params map[string]string) string {
 	url := prefix
 	if len(params) > 0 {
 		if strings.Contains(url, "?") {
-			if len(params) > 0 {
+			// if there is already a key/value pair in url
+			if url[len(url)-1] != byte('?') && len(params) > 0 {
 				url += "&"
 			}
 		} else {
