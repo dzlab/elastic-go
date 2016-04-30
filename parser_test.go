@@ -39,6 +39,21 @@ func TestInsertResultParser(t *testing.T) {
 	checkParsingResult(t, input, parser, expected)
 }
 
+// TestIndexResultParser tests for IndexResultParser
+func TestIndexResultParser(t *testing.T) {
+	parser := &IndexResultParser{}
+	// input strings to parse
+	input := []string{
+		`{"error":{"root_cause":[{"type":"index_already_exists_exception","reason":"already exists","index":"my_index"}],"type":"index_already_exists_exception","reason":"already exists","index":"my_index"},"status":400}`,
+	}
+	// expected results
+	expected := []interface{}{
+		Failure{Err: Error{RootCause: []Dict{Dict{"type": "index_already_exists_exception", "reason": "already exists", "index": "my_index"}}, Type: "index_already_exists_exception", Reason: "already exists", Index: "my_index"}, Status: 400},
+	}
+	// check parsing result
+	checkParsingResult(t, input, parser, expected)
+}
+
 // calculated actual parsing result and check it against expected result
 func checkParsingResult(t *testing.T, input []string, parser Parser, expected []interface{}) {
 	// actual result from parsing input

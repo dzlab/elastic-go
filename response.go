@@ -18,6 +18,8 @@ type Error struct {
 	Type      string `json:"type"`
 	Reason    string `json:"reason"`
 	CausedBy  Dict   `json:"caused_by"`
+	// Index the name of index involved in this error incase of an Index API response
+	Index string `json:"index"`
 }
 
 // Success is a structure representing an Elasticsearch success response
