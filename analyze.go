@@ -15,6 +15,8 @@ const (
 	ANALYZE = "analyze"
 	// Tokenizer a parameter in an Analyze API used to send the text tokenizer. Example of possible values: standard, whitespace, letter.
 	Tokenizer = "tokenizer"
+	// Filters a parameter in an Analyze API used to send the tokens filter. Example of possible values: lowercase
+	Filters = "filters"
 	// CharFilters a parameter in an Analyze API used to set the text preprocessor. Example of possible values: html_strip
 	CharFilters = "char_filters"
 )

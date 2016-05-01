@@ -46,17 +46,17 @@ type SearchResultParser struct{}
 func (parser *SearchResultParser) Parse(data []byte) (interface{}, error) {
 	search := SearchResult{}
 	if err := json.Unmarshal(data, &search); err == nil && !deepEqual(search, *new(SearchResult)) {
-		log.Println("search", string(data), search)
+		log.Println("search", search)
 		return search, nil
 	}
 	next1 := &SuccessParser{}
 	if success, err := next1.Parse(data); err == nil && success != *new(Success) {
-		log.Println("success", string(data), success)
+		log.Println("success", success)
 		return success, nil
 	}
 	next2 := &FailureParser{}
 	if failure, err := next2.Parse(data); err == nil && !deepEqual(failure, *new(Failure)) {
-		log.Println("failed", string(data), failure)
+		log.Println("failed", failure)
 		return failure, nil
 	}
 	log.Println("Failed to parse response", string(data))
