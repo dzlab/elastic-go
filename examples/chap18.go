@@ -5,7 +5,7 @@ import (
 	t "time"
 )
 
-// chap18 runs example queries from chapter 17 of Elasticsearch the Definitive Guide
+// chap18 runs example queries from chapter 18 of Elasticsearch the Definitive Guide
 // It's an introduction to search in languages using the corresponding analyzers
 func chap18() {
 	c := &e.Elasticsearch{Addr: "localhost:9200"}

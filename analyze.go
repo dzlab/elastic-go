@@ -13,6 +13,10 @@ type Analyze struct {
 const (
 	// ANALYZE a constant for Analyze query name
 	ANALYZE = "analyze"
+	// Tokenizer a parameter in an Analyze API used to send the text tokenizer. Example of possible values: standard, whitespace, letter.
+	Tokenizer = "tokenizer"
+	// CharFilters a parameter in an Analyze API used to set the text preprocessor. Example of possible values: html_strip
+	CharFilters = "char_filters"
 )
 
 // Analyze returns an new Analyze request on the given index
@@ -41,6 +45,12 @@ func (analyzer *Analyze) Field(field string) *Analyze {
 // Analyzer adds a named standard Elasticsearch analyzer to the Analyze query
 func (analyzer *Analyze) Analyzer(name string) *Analyze {
 	analyzer.params["analyzer"] = name
+	return analyzer
+}
+
+// AddParam adds a key/value pair to Analyze API request.
+func (analyzer *Analyze) AddParam(name, value string) *Analyze {
+	analyzer.params[name] = value
 	return analyzer
 }
 

@@ -126,12 +126,12 @@ type AnalyzeResultParser struct{}
 func (parser *AnalyzeResultParser) Parse(data []byte) (interface{}, error) {
 	analyze := AnalyzeResult{}
 	if err := json.Unmarshal(data, &analyze); err == nil && !deepEqual(analyze, *new(AnalyzeResult)) {
-		log.Println("analyze", string(data), analyze)
+		log.Println("analyze", analyze)
 		return analyze, nil
 	}
 	next1 := SuccessParser{}
 	if success, err := next1.Parse(data); err == nil && success != *new(Success) {
-		log.Println("success", string(data), success)
+		log.Println("success", success)
 		return success, nil
 	}
 	log.Println("Failed to parse response", string(data))
