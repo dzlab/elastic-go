@@ -53,6 +53,18 @@ a := e.NewAnalyzer("analyzer")
     }
   )
 client.Index("my_index").AddAnalyzer(cf).AddAnalyzer(f).AddAnalyzer(a).Put()
+
+// try the analyzer with some data
+c.Analyze("my_index").Analyzer("my_analyzer").Get("<p>a paragraph</p>")
+
+// create mapping for a document
+client.Mapping("my_index", "my_type")
+  .AddField("title", e.Dict{"type":"string", "analyzer": "standard"})
+  .AddField("body", e.Dict{"type":"string", "analyzer": "my_analyzer"})
+  .Put()
+
+// insert some data
+c.Insert("my_index", "my_type").Document(1, e.Dict{"title": "some title", "body": "<p> a paragraph</p>"}).Put()
 ```
 
 ### Contribute
