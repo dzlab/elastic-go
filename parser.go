@@ -129,6 +129,10 @@ func (parser *AnalyzeResultParser) Parse(data []byte) (interface{}, error) {
 	if success, err := next1.Parse(data); err == nil && success != *new(Success) {
 		return success, nil
 	}
+	next2 := &FailureParser{}
+	if failure, err := next2.Parse(data); err == nil && !deepEqual(failure, *new(Failure)) {
+		return failure, nil
+	}
 	log.Println("Failed to parse response", string(data))
 	return nil, errors.New("Failed to parse response")
 }

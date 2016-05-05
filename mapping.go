@@ -29,7 +29,7 @@ const (
 	IndexAnalyzer = "index_analyzer"
 	// SearchAnalyzer search-time analyzer
 	SearchAnalyzer = "search_analyzer"
-	// IndexOptions defines indexing options in Mapping query
+	// IndexOptions defines indexing options in Mapping query. Possible values are: docsi (default for 'not_analyzed' string fields), freqs, positions (default for 'analyzed' string fields), offsets.
 	IndexOptions = "index_options"
 	// Norms constant name for configuring field length normalization
 	Norms = "norms"

@@ -23,15 +23,17 @@ const (
 	SearchType = "search_type"
 	// SCROLL a url param
 	SCROLL = "scroll"
-	// Filter a query name
+	// Filter a query name.
 	Filter = "filter"
-	// DisMax query name
+	// DisMax query name.
 	DisMax = "dis_max"
 	// MultiMatch a match query on multiple terms
 	MultiMatch = "multi_match"
-	// Boosting a query that include additional results but donwgrade them
+	// Common a query name.
+	Common = "common"
+	// Boosting a query param that include additional results but donwgrade them
 	Boosting = "boosting"
-	// ConstantScore a query that assings 1 as score to any matching document
+	// ConstantScore a query param that assings 1 as score to any matching document
 	ConstantScore = "constant_score"
 	// FunctionScore a query for customizing the scoring with predefined functions: weight, field_value_factor, random_score
 	FunctionScore = "function_score"
@@ -50,6 +52,8 @@ const (
 	// RescoreQuery
 	RescoreQuery = "rescore_query"
 
+	// CutOffFrequency query params. It is used to split query terms into 2 categories: low frequency terms for matching, and high frequency terms for sorting only.
+	CutOffFrequency = "cutoff_frequency"
 	// MinimumShouldMatch query params. It is used to reduce the number of low qualitymatches.
 	MinimumShouldMatch = "minimum_should_match"
 	// SLOP in 'phrase' queries to describe proximity/word ordering

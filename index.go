@@ -37,12 +37,22 @@ const (
 	StemExclusion = "stem_exclusion"
 	// Stopwords a property in Analyzer settings used to define custom stopwords than the ones used by default by the analyzer
 	Stopwords = "stopwords"
+	// StopwordsPath a property in Analyzer settings used to define the path to a file containing custom stopwords.
+	StopwordsPath = "stopwords_path"
 	// Stemmer a value of 'type' propery in Analyzer settings used to define the stemmer
 	Stemmer = "stemmer"
-	// Type a property in Analyzer setting used to define the type of the property. Example of values: string (), stop (for stopwords), stemmer, etc.
+	// CommonGrams a vale of 'type' property in Filter settings.
+	CommonGrams = "common_grams"
+	// Type a property in Analyzer setting used to define the type of the property. Example of values: string (), stop (for stopwords), stemmer, common_grams, etc.
 	Type = "type"
 	// Language a property in Analyzer setting used to define the type of stemmer to use in order to reduce words to their root form. Possible values: english, english_light, english_possessive_stemmer (removes 's from words).
 	Language = "language"
+	// CommonWords a property in Filter setting, similar to 'shingles' token filter, it makes phrase queries with stopwords more efficient. It accepcts values similar to the 'stopwords' property, example of values: _english_.
+	CommonWords = "common_words"
+	// CommonWordsPath a property in Analyzer setting used to define the path to a file containing common words.
+	CommonWordsPath = "common_words_path"
+	// QueryMode a boolean property in Filter settings. Used in conjugtion with common_words. It is set (by default) to false for indexing and to true for searching.
+	QueryMode = "query_mode"
 )
 
 // Index a strcuture to hold a query for building/deleting indexes
