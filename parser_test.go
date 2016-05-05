@@ -45,10 +45,12 @@ func TestIndexResultParser(t *testing.T) {
 	// input strings to parse
 	input := []string{
 		`{"error":{"root_cause":[{"type":"index_already_exists_exception","reason":"already exists","index":"my_index"}],"type":"index_already_exists_exception","reason":"already exists","index":"my_index"},"status":400}`,
+		`{"error":{"root_cause":[{"type":"index_not_found_exception","reason":"no such index","resource.type":"index_or_alias","resource.id":"my_index","index":"my_index"}],"type":"index_not_found_exception","reason":"no such index","resource.type":"index_or_alias","resource.id":"my_index","index":"my_index"},"status":404}`,
 	}
 	// expected results
 	expected := []interface{}{
 		Failure{Err: Error{RootCause: []Dict{Dict{"type": "index_already_exists_exception", "reason": "already exists", "index": "my_index"}}, Type: "index_already_exists_exception", Reason: "already exists", Index: "my_index"}, Status: 400},
+		Failure{Err: Error{RootCause: []Dict{Dict{"type": "index_not_found_exception", "reason": "no such index", "resource.type": "index_or_alias", "resource.id": "my_index", "index": "my_index"}}, Type: "index_not_found_exception", Reason: "no such index", ResourceType: "index_or_alias", ResourceId: "my_index", Index: "my_index"}, Status: 404},
 	}
 	// check parsing result
 	checkParsingResult(t, input, parser, expected)

@@ -18,7 +18,7 @@ type SuccessParser struct{}
 func (parser *SuccessParser) Parse(data []byte) (interface{}, error) {
 	success := Success{}
 	if err := json.Unmarshal(data, &success); err == nil {
-		log.Println("success", string(data), success)
+		log.Println("success", success)
 		return success, nil
 	}
 	log.Println("Failed to parse response", string(data))
@@ -32,7 +32,7 @@ type FailureParser struct{}
 func (parser *FailureParser) Parse(data []byte) (interface{}, error) {
 	failure := Failure{}
 	if err := json.Unmarshal(data, &failure); err == nil {
-		log.Println("failed", string(data), failure)
+		log.Println("failed", failure)
 		return failure, nil
 	}
 	log.Println("Failed to parse response", string(data))
@@ -51,12 +51,10 @@ func (parser *SearchResultParser) Parse(data []byte) (interface{}, error) {
 	}
 	next1 := &SuccessParser{}
 	if success, err := next1.Parse(data); err == nil && success != *new(Success) {
-		log.Println("success", success)
 		return success, nil
 	}
 	next2 := &FailureParser{}
 	if failure, err := next2.Parse(data); err == nil && !deepEqual(failure, *new(Failure)) {
-		log.Println("failed", failure)
 		return failure, nil
 	}
 	log.Println("Failed to parse response", string(data))
@@ -107,12 +105,10 @@ func (parser *InsertResultParser) Parse(data []byte) (interface{}, error) {
 	}
 	next1 := SuccessParser{}
 	if success, err := next1.Parse(data); err == nil && success != *new(Success) {
-		log.Println("success", string(data), success)
 		return success, nil
 	}
 	next2 := &FailureParser{}
 	if failure, err := next2.Parse(data); err == nil && !deepEqual(failure, *new(Failure)) {
-		log.Println("failed", string(data), failure)
 		return failure, nil
 	}
 	log.Println("Failed to parse response", string(data))
@@ -131,7 +127,6 @@ func (parser *AnalyzeResultParser) Parse(data []byte) (interface{}, error) {
 	}
 	next1 := SuccessParser{}
 	if success, err := next1.Parse(data); err == nil && success != *new(Success) {
-		log.Println("success", success)
 		return success, nil
 	}
 	log.Println("Failed to parse response", string(data))
@@ -145,12 +140,11 @@ type BulkResultParser struct{}
 func (parser *BulkResultParser) Parse(data []byte) (interface{}, error) {
 	bulk := BulkResult{}
 	if err := json.Unmarshal(data, &bulk); err == nil && !deepEqual(bulk, *new(BulkResult)) {
-		log.Println("bulk", string(data), bulk)
+		log.Println("bulk", bulk)
 		return bulk, nil
 	}
 	next := SuccessParser{}
 	if success, err := next.Parse(data); err == nil && success != *new(Success) {
-		log.Println("success", string(data), success)
 		return success, nil
 	}
 	log.Println("Failed to parse response", string(data))
