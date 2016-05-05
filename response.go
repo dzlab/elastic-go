@@ -14,10 +14,12 @@ type Failure struct {
 
 // Error is a structure representing the Elasticsearch error response
 type Error struct {
-	RootCause []Dict `json:"root_cause"`
-	Type      string `json:"type"`
-	Reason    string `json:"reason"`
-	CausedBy  Dict   `json:"caused_by"`
+	RootCause    []Dict `json:"root_cause"`
+	Type         string `json:"type"`
+	Reason       string `json:"reason"`
+	CausedBy     Dict   `json:"caused_by"`
+	ResourceType string `json:"resource.type"`
+	ResourceId   string `json:"resource.id"`
 	// Index the name of index involved in this error incase of an Index API response
 	Index string `json:"index"`
 }

@@ -29,10 +29,20 @@ const (
 	MaxShingleSize = "max_shingle_size"
 	// OutputUnigrams constant name of field defining output unigrams
 	OutputUnigrams = "output_unigrams"
+)
+
+// Analyer related constants
+const (
 	// StemExclusion a property in Analyzer settings used to define words that the analyzer should not stem
 	StemExclusion = "stem_exclusion"
 	// Stopwords a property in Analyzer settings used to define custom stopwords than the ones used by default by the analyzer
 	Stopwords = "stopwords"
+	// Stemmer a value of 'type' propery in Analyzer settings used to define the stemmer
+	Stemmer = "stemmer"
+	// Type a property in Analyzer setting used to define the type of the property. Example of values: string (), stop (for stopwords), stemmer, etc.
+	Type = "type"
+	// Language a property in Analyzer setting used to define the type of stemmer to use in order to reduce words to their root form. Possible values: english, english_light, english_possessive_stemmer (removes 's from words).
+	Language = "language"
 )
 
 // Index a strcuture to hold a query for building/deleting indexes
