@@ -18,6 +18,7 @@ var (
 		"chap20": chap20,
 		"chap21": chap21,
 		"chap22": chap22,
+		"chap23": chap23,
 	}
 )
 
