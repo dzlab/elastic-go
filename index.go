@@ -23,6 +23,8 @@ const (
 	TOKENIZER = "tokenizer" // analyzer params
 	// FILTER a parameter name of mapping in an Index API query
 	FILTER = "filter"
+	// CharFilter name of the analyzer responible for filtering characters.
+	CharFilter = "char_filter"
 	// MinShingleSize name of field that defines the minimum size of shingle
 	MinShingleSize = "min_shingle_size"
 	// MaxShingleSize name of field that defines the maximum size of shingle
@@ -45,7 +47,7 @@ const (
 	CommonGrams = "common_grams"
 	// Type a property in Analyzer setting used to define the type of the property. Example of values: string (), stop (for stopwords), stemmer, common_grams, etc.
 	Type = "type"
-	// Language a property in Analyzer setting used to define the type of stemmer to use in order to reduce words to their root form. Possible values: english, english_light, english_possessive_stemmer (removes 's from words).
+	// Language a property in Analyzer setting used to define the type of stemmer to use in order to reduce words to their root form. Possible values: english, english_light, english_possessive_stemmer (removes 's from words), synonym, mapping (e.g. for char filter).
 	Language = "language"
 	// CommonWords a property in Filter setting, similar to 'shingles' token filter, it makes phrase queries with stopwords more efficient. It accepcts values similar to the 'stopwords' property, example of values: _english_.
 	CommonWords = "common_words"
@@ -53,6 +55,10 @@ const (
 	CommonWordsPath = "common_words_path"
 	// QueryMode a boolean property in Filter settings. Used in conjugtion with common_words. It is set (by default) to false for indexing and to true for searching.
 	QueryMode = "query_mode"
+	// Synonyms a an array of formatted synonyms in Filter settings. Used when type is set to 'synonym'.
+	Synonyms = "synonyms"
+	// SynonymsPath a string property in field parameter. It is used to specify a path (absolute or relative to Elasticsearch 'config' directory) to a file containing formatted synonyms.
+	SynonymsPath = "synonyms_path"
 )
 
 // Index a strcuture to hold a query for building/deleting indexes
