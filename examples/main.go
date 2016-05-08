@@ -24,6 +24,7 @@ var (
 		"chap28": chap28,
 		"chap29": chap29,
 		"chap30": chap30,
+		"chap31": chap31,
 	}
 )
 
