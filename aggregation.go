@@ -9,6 +9,8 @@ const (
 	Aggregations = "aggregations"
 	// Terms constant name of terms Bucket
 	Terms = "terms"
+	// Histogram constant name of the Histogram bucket
+	Histogram = "histogram"
 )
 
 // Constant name of Elasticsearch metrics
@@ -21,6 +23,16 @@ const (
 	Min = "min"
 	// Max constant name of 'max' metric.
 	Max = "max"
+	// ExtendedStats constant name of a metric that will return a variety of statistics (e.g. stats.avg, stats.count, stats.std_deviation).
+	ExtendedStats = "extended_stats"
+)
+
+const (
+	Field = "field"
+	// Interval name of parameter that define a histogram interval, i.e. the value that Elasticsearch will use to create new buckets.
+	Interval = "interval"
+	// Size name of parameter that defines how many terms we want to generate.
+	Size = "size"
 )
 
 type Aggregation struct {
