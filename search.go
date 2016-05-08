@@ -23,6 +23,8 @@ const (
 	SearchType = "search_type"
 	// SCROLL a url param
 	SCROLL = "scroll"
+	// PostFilter contant name of post_filter, a top level search parameter that is executed after the search query.
+	PostFilter = "post_filter"
 	// Filter a query name.
 	Filter = "filter"
 	// DisMax query name.

@@ -13,8 +13,10 @@ const (
 	Histogram = "histogram"
 	// DateHistogram constant name of the Date Histogram bucket.
 	DateHistogram = "date_histogram"
-	// Global constant name of the global bucket.
+	// Global constant name of the global bucket which is used to by pass aggregation scope.
 	Global = "global"
+	// FilterBucket constant name of filter bucket which is used to filter aggregation results.
+	FilterBucket = "filter"
 )
 
 // Constant name of Elasticsearch metrics
@@ -144,6 +146,14 @@ func (agg *Aggregation) AddQuery(q Query) *Aggregation {
 	if bucket.query["query"] == nil {
 		bucket.query["query"] = make(Dict)
 	}
-	bucket.query[query].(Dict)[q.Name()] = q.KV()
+	bucket.query["query"].(Dict)[q.Name()] = q.KV()
+	return agg
+}
+
+func (agg *Aggregation) AddPostFilter(q Query) *Aggregation {
+	if bucket.query[e.PostFilter] == nil {
+		bucket.query[e.PostFilter] = make(Dict)
+	}
+	bucket.query[e.PostFilter].(Dict)[q.Name()] = q.KV()
 	return agg
 }
