@@ -37,6 +37,8 @@ const (
 	ConstantScore = "constant_score"
 	// FunctionScore a query for customizing the scoring with predefined functions: weight, field_value_factor, random_score
 	FunctionScore = "function_score"
+	// Fuzzy 'fuzzy' qearch query. It's a term-level query that doesn't do analysis.
+	Fuzzy = "fuzzy"
 	// MatchPhrase 'phrase' search query
 	MatchPhrase = "match_phrase"
 	// MatchPhrasePrefix 'phrase' search query
@@ -70,6 +72,12 @@ const (
 	IndicesBoost = "indices_boost"
 	// NegativeBoost in boosting query, a float representing negative boost value
 	NegativeBoost = "negative_boost"
+	// Fuzziness a query parameter in 'fuzzy' (and also 'match', 'multi_match') query. It's used to set the maximum edit distance between a potentially mispelled word and the index words.
+	Fuzziness = "fuzziness"
+	// PrefixLength an integer query parameter in the 'fuzzy' query. It is used to fix the initial characters, of a word, which will not be fuzzified.
+	PrefixLength = "prefix_length"
+	// Operator a query parameter in the 'match' query. Possible values: and.
+	Operator = "operator"
 
 	// Weight a predifined scoring function that can be used in any query. It assigns a non normalized boost to each document (i.e. is used as it is an not alterned like 'boost')
 	Weight = "weight"
@@ -169,6 +177,11 @@ func NewConstantScore() *Object {
 // NewFunctionScore creates a new 'function_score' query
 func NewFunctionScore() *Object {
 	return NewQuery(FunctionScore)
+}
+
+// NewFuzzyQuery create a new 'fuzzy' query
+func NewFuzzyQuery() *Object {
+	return NewQuery(Fuzzy)
 }
 
 // newQuery used for test purpose

@@ -59,6 +59,8 @@ const (
 	Synonyms = "synonyms"
 	// SynonymsPath a string property in field parameter. It is used to specify a path (absolute or relative to Elasticsearch 'config' directory) to a file containing formatted synonyms.
 	SynonymsPath = "synonyms_path"
+	// Encoder a property in Filter settings. Used when filter 'type' is set to 'phonetic' to set the name of Phonetic algorithm to use. Possible values: double_metaphone.
+	Encoder = "encoder"
 )
 
 // Index a strcuture to hold a query for building/deleting indexes
