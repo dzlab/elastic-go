@@ -11,12 +11,16 @@ const (
 	Terms = "terms"
 	// Histogram constant name of the Histogram bucket
 	Histogram = "histogram"
+	// DateHistogram constant name of the Date Histogram bucket.
+	DateHistogram = "date_histogram"
 )
 
 // Constant name of Elasticsearch metrics
 const (
 	// Count constant name of 'count' metric.
 	Count = "count"
+	// Sum constant name of 'sum' metric.
+	Sum = "sum"
 	// Avg constant name of 'avg' metric.
 	Avg = "avg"
 	// Min constant name of 'min' metric.
@@ -31,8 +35,14 @@ const (
 	Field = "field"
 	// Interval name of parameter that define a histogram interval, i.e. the value that Elasticsearch will use to create new buckets.
 	Interval = "interval"
-	// Size name of parameter that defines how many terms we want to generate.
+	// Size name of parameter that defines how many terms we want to generate. Example of values, for histograms: 10, for date histograms: "month", "quarter".
 	Size = "size"
+	// Format name of parameter in date histogram, used to define the  dates format for bucket keys.
+	Format = "format"
+	// MinDocCount name of parameter in date histogram, used to force empty buckets to be returned.
+	MinDocCount = "min_doc_count"
+	// ExtendedBound name of parameter in date histogram. It is used to extend the boudaries of bucket from the boudaries of actual data. This, it forces all bucket betwen the min and max bound to be returned.
+	ExtendedBound = "extended_bound"
 )
 
 type Aggregation struct {
@@ -107,6 +117,11 @@ func (bucket *Bucket) AddMetric(metric, name, string, value interface{}) *Bucket
 		bucket.query[metric] = make(Dict)
 	}
 	bucket.query[metric].(Dict)[name] = value
+	return bucket
+}
+
+func (bucket *Bucket) AddDict(name string, value Dict) *Bucket {
+	bucket.query[name] = value
 	return bucket
 }
 
