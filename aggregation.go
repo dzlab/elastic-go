@@ -13,6 +13,8 @@ const (
 	Histogram = "histogram"
 	// DateHistogram constant name of the Date Histogram bucket.
 	DateHistogram = "date_histogram"
+	// Global constant name of the global bucket.
+	Global = "global"
 )
 
 // Constant name of Elasticsearch metrics
@@ -135,5 +137,13 @@ func (bucket *Bucket) AddBucket(b *Bucket) *Bucket {
 
 func (agg *Aggregation) Add(bucket Bucket) *Aggregation {
 	agg.query[bucket.name] = bucket.query
+	return agg
+}
+
+func (agg *Aggregation) AddQuery(q Query) *Aggregation {
+	if bucket.query["query"] == nil {
+		bucket.query["query"] = make(Dict)
+	}
+	bucket.query[query].(Dict)[q.Name()] = q.KV()
 	return agg
 }
