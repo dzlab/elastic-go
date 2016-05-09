@@ -76,9 +76,7 @@ func (agg *Aggregation) urlString() string {
 func (agg *Aggregation) String() string {
 	body := ""
 	if len(agg.query) > 0 {
-		dict := make(Dict)
-		dict[Aggs] = agg.query
-		body = String(dict)
+		body = String(agg.query)
 	}
 	return body
 }
@@ -138,7 +136,11 @@ func (bucket *Bucket) AddBucket(b *Bucket) *Bucket {
 }
 
 func (agg *Aggregation) Add(bucket *Bucket) *Aggregation {
-	agg.query[bucket.name] = bucket.query
+	if agg.query[Aggs] == nil {
+		agg.query[Aggs] = make(Dict)
+	}
+	aggs := agg.query[Aggs].(Dict)
+	aggs[bucket.name] = bucket.query
 	return agg
 }
 
