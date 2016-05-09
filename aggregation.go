@@ -51,7 +51,7 @@ const (
 
 type Aggregation struct {
 	client *Elasticsearch
-	parser *Parser
+	parser Parser
 	url    string
 	params map[string]string
 	query  Dict
@@ -104,7 +104,7 @@ type Bucket struct {
 	query Dict
 }
 
-func NewBucket(name) *Bucket {
+func NewBucket(name string) *Bucket {
 	return &Bucket{
 		name:  name,
 		query: make(Dict),
@@ -116,7 +116,7 @@ func (bucket *Bucket) AddTerm(name string, value interface{}) *Bucket {
 	return bucket
 }
 
-func (bucket *Bucket) AddMetric(metric, name, string, value interface{}) *Bucket {
+func (bucket *Bucket) AddMetric(metric, name string, value interface{}) *Bucket {
 	if bucket.query[metric] == nil {
 		bucket.query[metric] = make(Dict)
 	}
@@ -137,23 +137,23 @@ func (bucket *Bucket) AddBucket(b *Bucket) *Bucket {
 	return bucket
 }
 
-func (agg *Aggregation) Add(bucket Bucket) *Aggregation {
+func (agg *Aggregation) Add(bucket *Bucket) *Aggregation {
 	agg.query[bucket.name] = bucket.query
 	return agg
 }
 
 func (agg *Aggregation) AddQuery(q Query) *Aggregation {
-	if bucket.query["query"] == nil {
-		bucket.query["query"] = make(Dict)
+	if agg.query["query"] == nil {
+		agg.query["query"] = make(Dict)
 	}
-	bucket.query["query"].(Dict)[q.Name()] = q.KV()
+	agg.query["query"].(Dict)[q.Name()] = q.KV()
 	return agg
 }
 
 func (agg *Aggregation) AddPostFilter(q Query) *Aggregation {
-	if bucket.query[e.PostFilter] == nil {
-		bucket.query[e.PostFilter] = make(Dict)
+	if agg.query[PostFilter] == nil {
+		agg.query[PostFilter] = make(Dict)
 	}
-	bucket.query[e.PostFilter].(Dict)[q.Name()] = q.KV()
+	agg.query[PostFilter].(Dict)[q.Name()] = q.KV()
 	return agg
 }
