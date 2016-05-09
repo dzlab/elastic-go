@@ -8,7 +8,7 @@ import (
 // chap24 runs example queries from chapter 24 of Elasticsearch the Definitive Guide
 // It's about fuzzy matching at query-time to hadling typoes and mispelings, and phonetic token filters at index time for sounds-like matching.
 func chap24() {
-	c := &Elasticsearch{Addr: "localhost:9200"}
+	c := &e.Elasticsearch{Addr: "localhost:9200"}
 	c.Index("my_index").Delete()
 	// index some documents
 	c.Bulk("my_index", "my_type").AddOperation(e.NewOperation(1).Add("text", "Surprise me!")).AddOperation(e.NewOperation(2).Add("text", "That was surprising.")).AddOperation(e.NewOperation(3).Add("text", "I wasn't surprised.")).Post()

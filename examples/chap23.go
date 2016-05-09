@@ -29,7 +29,7 @@ func chap23() {
 
 	// use char mapping filter to convert emoticons to their meaning and void to lose them as the standard tokenizer filter will remove them.
 	c.Index("my_index").Delete()
-	c.Index("my_index").AddAnalyzer(e.NewAnalyzer("char_filter").Add2("emoticons", e.Dict{e.Type: "mapping", e.MAPPINGS: []string{":)=>emoticon_happy", ":(=>emoticon_sad"}})).AddAnalyzer(e.NewAnalyzer("analyzer").Add2("my_emoticons", e.Dict{e.CharFilter: "emoticons", e.Tokenizer: "standard", "filter": []string{"lowercase"}})).Get()
+	c.Index("my_index").AddAnalyzer(e.NewAnalyzer("char_filter").Add2("emoticons", e.Dict{e.Type: "mapping", e.MAPPINGS: []string{":)=>emoticon_happy", ":(=>emoticon_sad"}})).AddAnalyzer(e.NewAnalyzer("analyzer").Add2("my_emoticons", e.Dict{e.CharFilter: "emoticons", e.Tokenizer: "standard", "filter": []string{"lowercase"}})).Put()
 	// test the symbol synonym
 	c.Analyze("my_index").Analyzer("my_emoticons").Get("I am :) not :(")
 }

@@ -20,11 +20,11 @@ func chap26() {
 	op8 := e.NewOperation(8).Add("price", 25000).Add("color", "blue").Add("make", "ford").Add("sold", "2014-02-12")
 	c.Bulk("cars", "transactions").AddOperation(op1).AddOperation(op2).AddOperation(op3).AddOperation(op4).AddOperation(op5).AddOperation(op6).AddOperation(op7).AddOperation(op8).Post()
 	// submit an aggregation query
-	c.Aggregation("cars", "transactions").SetMetric(e.Count).Add(e.NewBucket("colors").AddTerm("field", "color")).Get()
+	c.Aggs("cars", "transactions").SetMetric(e.Count).Add(e.NewBucket("colors").AddTerm("field", "color")).Get()
 	// add an addition metric inside bucket: average price
-	c.Aggregation("cars", "transactions").SetMetric(e.Count).Add(e.NewBucket("colors").AddTerm("field", "color").AddBucket(e.NewBucket("avg_price").AddMetric(e.Avg, "field", "price"))).Get()
+	c.Aggs("cars", "transactions").SetMetric(e.Count).Add(e.NewBucket("colors").AddTerm("field", "color").AddBucket(e.NewBucket("avg_price").AddMetric(e.Avg, "field", "price"))).Get()
 	// bucket inside bucket: another terms bucket that will generated as mush as there is values for field 'make'
-	c.Aggregation("cars", "transactions").SetMetric(e.Count).Add(e.NewBucket("colors").AddTerm("field", "color").AddBucket(e.NewBucket("avg_price").AddMetric(e.Avg, "field", "price")).AddBucket(e.NewBucket("make").AddTerm("field", "make"))).Get()
+	c.Aggs("cars", "transactions").SetMetric(e.Count).Add(e.NewBucket("colors").AddTerm("field", "color").AddBucket(e.NewBucket("avg_price").AddMetric(e.Avg, "field", "price")).AddBucket(e.NewBucket("make").AddTerm("field", "make"))).Get()
 	// add two metics to calculate min/max price for each make
-	c.Aggregation("cars", "transactions").SetMetric(e.Count).Add(e.NewBucket("colors").AddTerm("field", "color").AddBucket(e.NewBucket("avg_price").AddMetric(e.Avg, "field", "price")).AddBucket(e.NewBucket("make").AddTerm("field", "make").AddBucket(e.NewBucket("min_price").AddMetric(e.Min, "price")).AddBucket(e.NewBucket("max_price").AddMetric(e.Max, "price")))).Get()
+	c.Aggs("cars", "transactions").SetMetric(e.Count).Add(e.NewBucket("colors").AddTerm("field", "color").AddBucket(e.NewBucket("avg_price").AddMetric(e.Avg, "field", "price")).AddBucket(e.NewBucket("make").AddTerm("field", "make").AddBucket(e.NewBucket("min_price").AddMetric(e.Min, e.Field, "price")).AddBucket(e.NewBucket("max_price").AddMetric(e.Max, e.Field, "price")))).Get()
 }
