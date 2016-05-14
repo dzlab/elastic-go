@@ -128,3 +128,25 @@ type BulkResult struct {
 	Errors bool           `json:"errors"`
 	Items  []InsertResult `json:"items"`
 }
+
+/////////////////////////////////// Aggregation Query
+// AggregationResult is a structure representing the Elasticsearch aggregation query result
+// e.g. {"took":4,"timed_out":false,"_shards":{"total":5,"successful":5,"failed":0},"hits":{"total":7,"max_score":0.0,"hits":[]},"aggregations":{"colors":{"doc_count_error_upper_bound":0,"sum_other_doc_count":0,"buckets":[{"key":"blue","doc_count":1,"avg_price":{"value":15000.0}},{"key":"green","doc_count":2,"avg_price":{"value":21000.0}},{"key":"red","doc_count":4,"avg_price":{"value":32500.0}}]}}}
+type AggregationResult struct {
+	SearchResult
+	Aggregations map[string]AggSubResult `json:"aggregations"`
+}
+
+// AggSubResult is a structure representing a sub result of the aggregation query result
+type AggSubResult struct {
+	DocCountErrorUpperBound int    `json:"doc_count_error_upper_bound"`
+	SumOtherDocCount        int    `json:"sum_other_doc_count"`
+	Buckets                 []Dict `json:"buckets"`
+	//Buckets                 []BucketResult `json:"buckets"`
+}
+
+type BucketResult struct {
+	Key      string `json:"key"`
+	DocCount int    `json:"doc_count"`
+	Dict     `json`
+}

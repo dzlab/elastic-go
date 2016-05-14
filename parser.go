@@ -154,3 +154,22 @@ func (parser *BulkResultParser) Parse(data []byte) (interface{}, error) {
 	log.Println("Failed to parse response", string(data))
 	return nil, errors.New("Failed to parse response")
 }
+
+// AggregationResultParser a parser for aggregation result
+type AggregationResultParser struct{}
+
+// Parse returns an index result structure from the given data
+func (parser *AggregationResultParser) Parse(data []byte) (interface{}, error) {
+	var result interface{}
+	agg := AggregationResult{}
+	if err := json.Unmarshal(data, &agg); err == nil && !deepEqual(agg, *new(AggregationResult)) {
+		log.Println("aggregation", agg)
+		return agg, nil
+	}
+	next2 := &FailureParser{}
+	if failure, err := next2.Parse(data); err == nil && !deepEqual(failure, *new(Failure)) {
+		return failure, nil
+	}
+	log.Println(string(data))
+	return result, nil
+}

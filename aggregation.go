@@ -36,6 +36,7 @@ const (
 )
 
 const (
+	// Field name of parameter that defines the document's field that will be used to create buckets using its unique values.
 	Field = "field"
 	// Interval name of parameter that define a histogram interval, i.e. the value that Elasticsearch will use to create new buckets.
 	Interval = "interval"
@@ -47,6 +48,8 @@ const (
 	MinDocCount = "min_doc_count"
 	// ExtendedBound name of parameter in date histogram. It is used to extend the boudaries of bucket from the boudaries of actual data. This, it forces all bucket betwen the min and max bound to be returned.
 	ExtendedBound = "extended_bound"
+	// Order name of an object that defines how the create buckets should be generatedas well as the the ordering mode (e.g. asc). Example of values: _count (sort by document count), _term (sort alphabetically by string value), _key (sort by bucket key, works only for histogram & date_histogram).
+	Order = "order"
 )
 
 type Aggregation struct {
@@ -61,6 +64,7 @@ func (client *Elasticsearch) Aggs(index, doc string) *Aggregation {
 	url := client.request(index, doc, -1, SEARCH)
 	return &Aggregation{
 		client: client,
+		parser: &AggregationResultParser{},
 		url:    url,
 		params: make(map[string]string),
 		query:  make(Dict),
@@ -92,16 +96,25 @@ func (agg *Aggregation) Get() {
 	agg.client.Execute("GET", url, query, agg.parser)
 }
 
+// SetMetric sets the search type with the given value (e.g. count)
 func (agg *Aggregation) SetMetric(name string) *Aggregation {
 	agg.params[SearchType] = name
 	return agg
 }
 
+// Bucket a structure that defines how Elasticsearch should create Bucket for aggregations.
 type Bucket struct {
 	name  string
 	query Dict
 }
 
+// Metric a structure that defines a bucket metric.
+type Metric struct {
+	name  string
+	query Dict
+}
+
+// NewBucket creates a new Bucket definition
 func NewBucket(name string) *Bucket {
 	return &Bucket{
 		name:  name,
@@ -127,6 +140,15 @@ func (bucket *Bucket) AddDict(name string, value Dict) *Bucket {
 	return bucket
 }
 
+// SetOrder set the ordering for this bucket.
+// name is the name of ordering, e.g. _count, _term, _key, name of metric
+// value defines the sens of ordering, e.g. asc
+func (bucket *Bucket) SetOrder(metric, name, value string) *Bucket {
+	bucket.AddMetric(metric, Order, Dict{name: value})
+	return bucket
+}
+
+// AddBucket adds a nested bucket to this bucket
 func (bucket *Bucket) AddBucket(b *Bucket) *Bucket {
 	if bucket.query[Aggs] == nil {
 		bucket.query[Aggs] = make(Dict)
