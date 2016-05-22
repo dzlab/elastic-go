@@ -39,6 +39,8 @@ const (
 	Percentiles = "percentiles"
 	// PercentileRank constant name of an approximation metric that tells to which percentile the given value belongs.
 	PercentileRanks = "percentile_ranks"
+	// SignificantTerms constant name of the statistical anomalie aggregation. By default, it will use the entire index as the background group while the foreground will be aggregation query scope.
+	SignificantTerms = "significant_terms"
 )
 
 const (
