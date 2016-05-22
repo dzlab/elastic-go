@@ -33,6 +33,12 @@ const (
 	Max = "max"
 	// ExtendedStats constant name of a metric that will return a variety of statistics (e.g. stats.avg, stats.count, stats.std_deviation).
 	ExtendedStats = "extended_stats"
+	// Cardiality constant name of the 'cardinality' approximation metric.
+	Cardiality = "cardinality"
+	// Percentiles constant name of the 'percentiles' approximation metric.
+	Percentiles = "percentiles"
+	// PercentileRank constant name of an approximation metric that tells to which percentile the given value belongs.
+	PercentileRanks = "percentile_ranks"
 )
 
 const (
@@ -50,8 +56,17 @@ const (
 	ExtendedBound = "extended_bound"
 	// Order name of an object that defines how the create buckets should be generatedas well as the the ordering mode (e.g. asc). Example of values: _count (sort by document count), _term (sort alphabetically by string value), _key (sort by bucket key, works only for histogram & date_histogram).
 	Order = "order"
+	// PrecisionThreshold configure the precision of the HyperLogLog algorithm used by the 'cardinality' metric.
+	PrecisionThreshold = "precision_threshold"
+	// Percents a parameter of the 'percentiles' metric. It's used to define an array of the percentiles that should be calculated instead of the default one (i.e. 5, 25, 50, 75, 95, 99).
+	Percents = "percents"
+	// Values a parameter of the 'percentile_ranks' metric. It is used to define the values that Elasticsearch should find their percentile.
+	Values = "values"
+	// Compression a parameter of the 'percentiles' metric (default value is 100). It is used to control the memory footprint (an thus the accuracy) by limiting the number of nodes involved in the calculation.
+	Compression = "compression"
 )
 
+// Aggregations a structure representing an aggregation request
 type Aggregation struct {
 	client *Elasticsearch
 	parser Parser
@@ -60,6 +75,7 @@ type Aggregation struct {
 	query  Dict
 }
 
+// Aggs creates an aggregation request
 func (client *Elasticsearch) Aggs(index, doc string) *Aggregation {
 	url := client.request(index, doc, -1, SEARCH)
 	return &Aggregation{
@@ -157,6 +173,7 @@ func (bucket *Bucket) AddBucket(b *Bucket) *Bucket {
 	return bucket
 }
 
+// Add adds a bucket definition to this aggregation request
 func (agg *Aggregation) Add(bucket *Bucket) *Aggregation {
 	if agg.query[Aggs] == nil {
 		agg.query[Aggs] = make(Dict)
@@ -166,6 +183,7 @@ func (agg *Aggregation) Add(bucket *Bucket) *Aggregation {
 	return agg
 }
 
+// AddQuery defines a scope query for this aggregation request
 func (agg *Aggregation) AddQuery(q Query) *Aggregation {
 	if agg.query["query"] == nil {
 		agg.query["query"] = make(Dict)
