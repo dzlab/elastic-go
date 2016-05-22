@@ -5,6 +5,7 @@ import (
 	t "time"
 )
 
+// chap33 examples from chapter 33 of Elasticsearch the Definitive Guide. It's about approximation algorithms: cardinality, percentiles.
 func chap33() {
 	c := &e.Elasticsearch{Addr: "localhost:9200"}
 
